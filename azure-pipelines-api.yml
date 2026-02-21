@@ -1,0 +1,200 @@
+trigger:
+  branches:
+    include:
+    - develop
+    - main
+
+pool:
+  name: Windows
+
+variables:
+ - ${{ if endsWith(variables['Build.SourceBranchName'], 'main') }}:
+     - group: 'VarGroup.DGW.DogSitter.Servicio.PRD'     
+     - name: 'BuildConfiguration'
+       value: 'Release'
+ - ${{ else }}:
+     - group: 'VarGroup.DGW.DogSitter.Servicio.DLL'
+     - name: 'BuildConfiguration'
+       value: 'Debug'
+       
+stages:
+- stage: continuous_integration
+  displayName: 'Continuous Integration'
+  jobs:
+
+  - job: build_validate
+    displayName: Build & Validate
+    
+    pool:
+      name: 'Azure DevOps XM' 
+
+    steps:
+    - task: UseDotNet@2
+      displayName: 'Use .NET sdk 8'
+      inputs:
+        packageType: sdk
+        version: 8.x
+        installationPath: $(Agent.ToolsDirectory)/dotnet
+
+    - task: NuGetAuthenticate@1      
+      displayName: 'Authenticate nuget'      
+      inputs:
+        forceReinstallCredentialProvider: true
+
+    - task: SonarQubePrepare@7
+      displayName: 'Prepare SonarQube Analysis'
+      inputs:
+        SonarQube: 'SC_SONAR'
+        scannerMode: 'dotnet'      
+        projectKey:  'DGW.DogSitter.DogWalker.Msvc'      
+        projectName: 'DGW.DogSitter.DogWalker.Msvc'
+        configMode: 'file' 
+        extraProperties: |
+          sonar.exclusions=Api/wwwroot/**,**/*Migrations*/*,**/*ModelConfig*/*,**/GenericRepository.cs,**/IGenericRepository.cs,**/UnitOfWork.cs
+          sonar.coverage.exclusions=**/Exceptions*/**,**/Program.cs,**/PersistenceContextFactory.cs,**/ExceptionHandler.cs,**/ValidationFilter.cs,**/AppExceptionHandlerMiddleware.cs,OpenApi/**
+          sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/*.trx
+          sonar.branch.name=${{variables['Build.SourceBranchName']}}
+        
+    - task: DotNetCoreCLI@2
+      displayName: 'Build solution'
+      inputs:
+        command: 'build'
+        projects: '**/*.sln'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Test solution'
+      inputs:
+        command: 'test'
+        projects: '**/*[Tt]est*/*.csproj'
+        arguments: '--configuration $(BuildConfiguration)  --collect "Code Coverage"'
+
+    - task: SonarQubeAnalyze@7
+      displayName: 'Run SonarQube Analizer'
+
+    - task: SonarQubePublish@7
+      displayName: 'Publish SonarQube results'
+      inputs:
+        pollingTimeoutSec: '300'
+
+    - task: sonar-buildbreaker@8
+      displayName: 'Validate Metrics SonarQube'
+      inputs:
+        SonarQube: 'SC_SONAR'  
+
+    - task: PowerShell@2
+      continueOnError: true
+      displayName: 'Dotnet list package deprecated'
+      condition: and(succeeded(), notIn(variables['Build.SourceBranchName'],'main'))
+      inputs:
+        targetType: 'inline'
+        script: |
+          $output = dotnet list  package --deprecated
+          $errors = $output | Select-String '>' 
+          if ($errors.Count -gt 0)
+          {
+            foreach ($err in $errors)
+            {
+                Write-Host "##vso[task.logissue type=error]Reference to deprecated NuGet-package $err"
+            }
+            exit 1
+          }else
+          {
+                Write-Host "No deprecated NuGet-package"
+                exit 0
+          }
+        
+    - task: CmdLine@2
+      displayName: 'Dotnet list package vulnerable'
+      condition: and(succeeded(), notIn(variables['Build.SourceBranchName'],'main'))
+      inputs:
+        script:  |
+          dotnet list package --vulnerable --include-transitive > packageVulnerabilities.log 2>&1
+          type packageVulnerabilities.log
+          findstr /i "critical" packageVulnerabilities.log > nul
+          if %errorlevel% equ 0 (
+              echo "##[warning]Has packages with critical vulnerabilities given current sources."
+              echo "##vso[task.complete result=SucceededWithIssues;]"
+          ) else (
+              echo Does not have packages with critical vulnerabilities given current sources.
+              exit /b 0
+          )
+
+    - task: CmdLine@2
+      displayName: 'Install nuget-license'
+      condition: and(succeeded(), notIn(variables['Build.SourceBranchName'],'main'))
+      inputs:
+        script: |
+          dotnet tool install --global nuget-license
+
+    - task: PowerShell@2
+      displayName: 'Validate licenses project'
+      condition: and(succeeded(), notIn(variables['Build.SourceBranchName'],'main'))
+      inputs:
+        targetType: 'inline'
+        script: |
+          nuget-license -i $(System.DefaultWorkingDirectory)/DGW.DogSitter.DogWalker.sln -o jsonPretty > $(System.DefaultWorkingDirectory)/licences.json
+
+          $jsonFilePath = "$(System.DefaultWorkingDirectory)/licences.json"
+    
+          if (-Not (Test-Path $jsonFilePath)) {
+              Write-Error "JSON file not found at $jsonFilePath"
+              exit 1
+          }
+    
+          $jsonContent = Get-Content -Raw -Path $jsonFilePath | ConvertFrom-Json
+    
+          # Define prohibited licenses
+          $prohibitedLicenses = @("AGPL", "Open license", "GPL")
+    
+          $prohibitedLicenseFound = $false
+    
+          foreach ($package in $jsonContent) {
+              $license = $package.License
+              if ($prohibitedLicenses -contains $license) {
+                  Write-Host "Error: Package '$($package.PackageId)' has a prohibited license: '$license'"
+                  $prohibitedLicenseFound = $true
+              }
+          }
+    
+          if ($prohibitedLicenseFound) {
+              Write-Error "Prohibited license(s) found. Pipeline will be terminated."
+              exit 1
+          }
+    
+          Write-Host "No prohibited licenses found. All packages are compliant."
+          exit 0
+
+    - task: CmdLine@2
+      displayName: 'Mutation Testing'
+      condition: and(succeeded(), notIn(variables['Build.SourceBranchName'],'main'))
+      inputs:
+        script: |
+          cd "DGW.DogSitter.DogWalker.Domain.Tests"
+          dotnet tool update -g dotnet-stryker
+          dotnet stryker --threshold-high 80 --threshold-low 70 --break-at 60
+          cd StrykerOutput\202*
+          move reports ..\..
+          
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Mutation Test Report Folder'
+      condition: and(succeeded(), notIn(variables['Build.SourceBranchName'],'main'))
+      inputs:
+        pathToPublish: '$(Build.SourcesDirectory)/DGW.DogSitter.DogWalker.Domain.Tests/reports'
+        artifactName: mutation-report.html
+
+    - task: PublishMutationReport@2
+      displayName: 'Publish Mutation Test Report Azure'
+      condition: and(succeeded(), notIn(variables['Build.SourceBranchName'],'main'))
+      inputs:
+        reportPattern: '**/mutation-report.html'
+        reportDisplayName: 'Mutation Report'    
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish artifact'
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
+
+        
+
