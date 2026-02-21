@@ -22,7 +22,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<Program>(ServiceLifetime.Si
 
 builder.Services.AddDbContext<DataContext>(opts =>
 {
-    opts.UseSqlServer(config.GetConnectionString("db"));
+    opts.UseNpgsql(config.GetConnectionString("db"));
 });
 
 builder.Services.AddHealthChecks()
