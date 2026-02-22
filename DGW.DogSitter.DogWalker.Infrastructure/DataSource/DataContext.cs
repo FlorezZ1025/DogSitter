@@ -5,6 +5,9 @@ namespace DGW.DogSitter.DogWalker.Infrastructure.DataSource;
 
 public class DataContext(DbContextOptions<DataContext> options) : DbContext(options)
 {
+    public DbSet<Cuidador> Cuidadores { get; set; }
+    public DbSet<Raza> Razas { get; set; }
+    public DbSet<Perro> Perros { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         if (modelBuilder is null)
@@ -13,8 +16,7 @@ public class DataContext(DbContextOptions<DataContext> options) : DbContext(opti
         }
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(DataContext).Assembly);
-        modelBuilder.Entity<Voter>();
-
+        modelBuilder.Ignore<Voter>();
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
             var t = entityType.ClrType;
