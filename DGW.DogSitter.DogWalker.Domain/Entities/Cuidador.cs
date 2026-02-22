@@ -14,7 +14,6 @@ namespace DGW.DogSitter.DogWalker.Domain.Entities
         public DateTime fechaInicioExperiencia { get; set; }
         public required string direccion {  get; set; }
         public required bool activo { get; set; }
-
         public ICollection<Perro> perros { get; set; } = [];
     }
 }

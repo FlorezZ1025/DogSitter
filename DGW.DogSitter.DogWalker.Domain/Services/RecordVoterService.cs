@@ -33,7 +33,7 @@ public class RecordVoterService
         var voterExists = await _voterRepository.ExistsAsync(voter.Id);
         if (voterExists is not null)
         {
-            throw new DuplicatedVoterException("The voter already exists");
+            throw new DuplicatedCuidadorException("The voter already exists");
         }
     }
 }

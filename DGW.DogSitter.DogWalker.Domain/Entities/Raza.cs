@@ -12,7 +12,6 @@ namespace DGW.DogSitter.DogWalker.Domain.Entities
         public required string corpulencia { get; set; }
         public required string nivelEnergia { get; set; }
         public string? observacionesGenerales { get; set; } = null;
-
         public ICollection<Perro> perros { get; set; } = [];
     }
 }
