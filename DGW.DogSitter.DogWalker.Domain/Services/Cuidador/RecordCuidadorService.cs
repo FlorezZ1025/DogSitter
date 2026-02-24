@@ -11,10 +11,10 @@ namespace DGW.DogSitter.DogWalker.Domain.Services.Cuidador
 {
     [DomainService]
 
-    public class RecordCuidadorService
+    public class RegisterCuidadorService
     {
         private readonly ICuidadorRepository _cuidadorRepository;
-        public RecordCuidadorService(ICuidadorRepository cuidadorRepository) => _cuidadorRepository = cuidadorRepository;
+        public RegisterCuidadorService(ICuidadorRepository cuidadorRepository) => _cuidadorRepository = cuidadorRepository;
 
         public async Task RecordCuidadorAsync(Entities.Cuidador cuidador)
         {
