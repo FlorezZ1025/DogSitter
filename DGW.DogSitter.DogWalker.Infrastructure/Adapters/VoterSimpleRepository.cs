@@ -19,6 +19,6 @@ public class VoterSimpleRepository(DataContext dc) : IVoterSimpleQueryRepository
                              new
                              {
                                  Id = id
-                             }) ?? throw new NotFoundVoterException("The voter does not exist");
+                             }) ?? throw new NotFoundCuidadorException("The voter does not exist");
     }
 }

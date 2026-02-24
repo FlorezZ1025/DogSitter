@@ -13,6 +13,6 @@ public interface IRepository<T> where T : DomainEntity
         bool isTracking = false);
     Task<T> AddAsync(T entity);
     Task<T> UpdateAsync(T entity);
-    Task DeleteAsync(T entity);
+    Task<bool> DeleteAsync(Guid id);
 
 }

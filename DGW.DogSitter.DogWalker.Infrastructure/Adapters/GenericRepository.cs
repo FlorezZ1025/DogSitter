@@ -54,11 +54,11 @@ public class GenericRepository<T> : IRepository<T> where T : DomainEntity
         return entity;
     }
 
-    public async Task DeleteAsync(T entity)
+    public async Task<bool> DeleteAsync(Guid id)
     {
-        _ = entity ?? throw new ArgumentNullException(nameof(entity), "Entity can not be null");
-        Dataset.Remove(entity);
-        await Task.CompletedTask;
+        //_ = entity ?? throw new ArgumentNullException(nameof(entity), "Entity can not be null");
+        var affected = await Dataset.Where(e => e.Id == id).ExecuteDeleteAsync();
+        return affected > 0;
     }
 
     public async Task<T> GetOneAsync(Guid id)

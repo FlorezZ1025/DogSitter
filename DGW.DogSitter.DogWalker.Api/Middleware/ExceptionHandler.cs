@@ -27,7 +27,7 @@ public class AppExceptionHandlerMiddleware(RequestDelegate next, ILogger<AppExce
             context.Response.ContentType = ContentType.ApplicationJson.ToString();
             context.Response.StatusCode = exception switch
             {
-                NotFoundVoterException => (int)HttpStatusCode.NotFound,
+                NotFoundCuidadorException => (int)HttpStatusCode.NotFound,
                 CoreBusinessException => (int)HttpStatusCode.BadRequest,
                 _ => (int)HttpStatusCode.InternalServerError
             };

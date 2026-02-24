@@ -21,6 +21,9 @@ namespace DGW.DogSitter.DogWalker.Domain.Mappings
 
         public static void UpdateEntity(this Cuidador cuidador, UpdateCuidadorDto dto)
         {
+            if (cuidador is null) throw new ArgumentNullException(nameof(cuidador));
+            if (dto is null) throw new ArgumentNullException(nameof(dto));
+
             if (dto.nombre is not null) cuidador.nombre = dto.nombre;
             if (dto.telefono is not null) cuidador.telefono = dto.telefono;
             if (dto.email is not null) cuidador.email = dto.email;
