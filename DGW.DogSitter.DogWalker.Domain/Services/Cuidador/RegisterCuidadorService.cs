@@ -10,16 +10,16 @@ using System.Threading.Tasks;
 namespace DGW.DogSitter.DogWalker.Domain.Services.Cuidador
 {
     [DomainService]
-
     public class RegisterCuidadorService
     {
         private readonly ICuidadorRepository _cuidadorRepository;
         public RegisterCuidadorService(ICuidadorRepository cuidadorRepository) => _cuidadorRepository = cuidadorRepository;
 
-        public async Task RecordCuidadorAsync(Entities.Cuidador cuidador)
+        public async Task<Guid> RegisterCuidadorAsync(Entities.Cuidador cuidador)
         {
             await CheckIfExistsAsync(cuidador);
             await _cuidadorRepository.SaveCuidadorAsync(cuidador);
+            return cuidador.Id;
         }
         private async Task CheckIfExistsAsync(Entities.Cuidador cuidador)
         {

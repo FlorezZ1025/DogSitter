@@ -8,6 +8,7 @@ using System;
 
 namespace DGW.DogSitter.DogWalker.Infrastructure.Adapters
 {
+    [Repository]
     public class CuidadorRepository(IRepository<Cuidador> dataSource) : ICuidadorRepository
     {
         readonly IRepository<Cuidador> _dataSource = dataSource ?? throw new ArgumentNullException(nameof(dataSource));

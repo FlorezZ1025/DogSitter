@@ -1,6 +1,8 @@
 using DGW.DogSitter.DogWalker.Api.ApiHandlers;
 using DGW.DogSitter.DogWalker.Api.Filters;
 using DGW.DogSitter.DogWalker.Api.Middleware;
+using DGW.DogSitter.DogWalker.Domain.Ports;
+using DGW.DogSitter.DogWalker.Infrastructure.Adapters;
 using DGW.DogSitter.DogWalker.Infrastructure.DataSource;
 using DGW.DogSitter.DogWalker.Infrastructure.Extensions;
 using FluentValidation;
@@ -28,7 +30,6 @@ builder.Services.AddDbContext<DataContext>(opts =>
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<DataContext>()
     .ForwardToPrometheus();
-
 builder.Services.AddDomainServices();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -90,8 +91,8 @@ app.UseRouting().UseEndpoints(endpoint =>
     endpoint.MapMetrics();
 });
 
-app.MapGroup("/api/voter").MapVoter().AddEndpointFilterFactory(ValidationFilter.ValidationFilterFactory);
-
+//app.MapGroup("/api/voter").MapVoter().AddEndpointFilterFactory(ValidationFilter.ValidationFilterFactory);
+app.MapGroup("").MapCuidador();
 await app.RunAsync();
 
 public partial class Program

@@ -5,6 +5,7 @@ using DGW.DogSitter.DogWalker.Infrastructure.Ports;
 using Microsoft.Extensions.DependencyInjection;
 
 
+
 namespace DGW.DogSitter.DogWalker.Infrastructure.Extensions;
 
 public static class AutoLoadServices
@@ -13,7 +14,6 @@ public static class AutoLoadServices
     {
         // generic repository
         services.AddTransient(typeof(IRepository<>), typeof(GenericRepository<>));
-
         // unit of work
         services.AddTransient<IUnitOfWork, UnitOfWork>();
 
