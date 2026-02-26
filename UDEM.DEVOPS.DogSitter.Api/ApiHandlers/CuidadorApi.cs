@@ -36,6 +36,12 @@ namespace UDEM.DEVOPS.DogSitter.Api.ApiHandlers
                 var updatedCuidador = await mediator.Send(new EditCuidadorCommand(cuidadorDto));
                 return Results.Ok(updatedCuidador);
             }).Produces(StatusCodes.Status200OK, typeof(CuidadorDto));
+
+            group.MapPatch("/", async (IMediator mediator, UpdateCuidadorDto cuidadorDto) =>
+            {
+                var updatedCuidador = await mediator.Send(new PatchCuidadorCommand(cuidadorDto));
+                return Results.Ok(updatedCuidador);
+            }).Produces(StatusCodes.Status200OK, typeof(CuidadorDto));
             return group;
         }
     }
