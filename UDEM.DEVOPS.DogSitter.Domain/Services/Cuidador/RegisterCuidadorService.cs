@@ -18,6 +18,7 @@ namespace UDEM.DEVOPS.DogSitter.Domain.Services.Cuidador
         public async Task<Guid> RegisterCuidadorAsync(Entities.Cuidador cuidador)
         {
             await CheckIfExistsAsync(cuidador);
+            await CheckIfEmailIsRegistered(cuidador);
             await _cuidadorRepository.SaveCuidadorAsync(cuidador);
             return cuidador.Id;
         }
@@ -27,6 +28,14 @@ namespace UDEM.DEVOPS.DogSitter.Domain.Services.Cuidador
             if (voterExists is not null)
             {
                 throw new DuplicatedCuidadorException("El cuidador ya se encuentra registrado");
+            }
+        }
+        private async Task CheckIfEmailIsRegistered(Entities.Cuidador cuidador)
+        {
+            var cuidadores = await _cuidadorRepository.GetAllCuidadoresAync();
+            foreach (var c in cuidadores)
+            {
+                if (c.email == cuidador.email) throw new DuplicatedEmailException($"El email {cuidador.email} se encuentra ya registrado");
             }
         }
     }

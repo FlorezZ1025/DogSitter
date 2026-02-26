@@ -9,11 +9,24 @@ namespace UDEM.DEVOPS.DogSitter.Domain.Mappings
         {
             return new Cuidador
             {
+                Id = dto.Id,
+                nombre = dto.nombre,
+                telefono = dto.telefono,
+                email = dto.email,
+                fechaInicioExperiencia = dto.fechaInicioExperiencia.ToUniversalTime(),
+                direccion = dto.direccion,
+                activo = dto.activo,
+            };
+        }
+        public static Cuidador ToEntity(this CreateCuidadorDto dto)
+        {
+            return new Cuidador
+            {
                 Id = Guid.NewGuid(),
                 nombre = dto.nombre,
                 telefono = dto.telefono,
                 email = dto.email,
-                fechaInicioExperiencia = dto.fechaInicioExperiencia,
+                fechaInicioExperiencia = dto.fechaInicioExperiencia.ToUniversalTime(),
                 direccion = dto.direccion,
                 activo = dto.activo,
             };
@@ -27,7 +40,7 @@ namespace UDEM.DEVOPS.DogSitter.Domain.Mappings
             if (dto.nombre is not null) cuidador.nombre = dto.nombre;
             if (dto.telefono is not null) cuidador.telefono = dto.telefono;
             if (dto.email is not null) cuidador.email = dto.email;
-            if (dto.fechaInicioExperiencia.HasValue) cuidador.fechaInicioExperiencia = dto.fechaInicioExperiencia.Value;
+            if (dto.fechaInicioExperiencia.HasValue) cuidador.fechaInicioExperiencia = dto.fechaInicioExperiencia.Value.ToUniversalTime();
             if (dto.direccion is not null) cuidador.direccion = dto.direccion;
             if (dto.activo.HasValue) cuidador.activo = dto.activo.Value;
         }
@@ -40,7 +53,7 @@ namespace UDEM.DEVOPS.DogSitter.Domain.Mappings
                 nombre = cuidador.nombre,
                 telefono = cuidador.telefono,
                 email = cuidador.email,
-                fechaInicioExperiencia = cuidador.fechaInicioExperiencia,
+                fechaInicioExperiencia = cuidador.fechaInicioExperiencia.ToLocalTime(),
                 direccion = cuidador.direccion,
                 activo = cuidador.activo
             };

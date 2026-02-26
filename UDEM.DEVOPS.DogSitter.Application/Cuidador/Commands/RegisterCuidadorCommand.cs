@@ -8,5 +8,5 @@ using System.Threading.Tasks;
 
 namespace UDEM.DEVOPS.DogSitter.Application.Cuidador.Commands
 {
-    public record RegisterCuidadorCommand(CuidadorDto dto) : IRequest<Guid>;
+    public record RegisterCuidadorCommand(CreateCuidadorDto dto) : IRequest<Guid>;
 }

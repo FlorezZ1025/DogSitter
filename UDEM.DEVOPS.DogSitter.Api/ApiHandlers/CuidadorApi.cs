@@ -10,18 +10,26 @@ namespace UDEM.DEVOPS.DogSitter.Api.ApiHandlers
         public static RouteGroupBuilder MapCuidador(this IEndpointRouteBuilder routeHandler)
         {
             var group = routeHandler.MapGroup("/api/cuidador").WithTags("Cuidador");
+
+            group.MapGet("/", async (IMediator mediator) =>
+            {
+                var cuidadores = await mediator.Send(new GetAllCuidadoresQuery());
+                return Results.Ok(cuidadores);
+            });
+
+
             group.MapGet("/{id}", async (IMediator mediator, Guid id) =>
             {
                 return Results.Ok(await mediator.Send(new GetCuidadorQuery(id)));
             })
             .Produces(StatusCodes.Status200OK, typeof(CuidadorDto));
 
-            group.MapPost("/", async (IMediator mediator, CuidadorDto cuidadorDto) =>
+            group.MapPost("/", async (IMediator mediator, CreateCuidadorDto cuidadorDto) =>
             {
                 var createdCuidador = await mediator.Send(new RegisterCuidadorCommand(cuidadorDto));
-                return Results.Created($"/{Guid.NewGuid()}", cuidadorDto);
+                return createdCuidador;
             })
-            .Produces(StatusCodes.Status201Created, typeof(CuidadorDto));
+            .Produces(StatusCodes.Status201Created);
             return group;
         }
     }

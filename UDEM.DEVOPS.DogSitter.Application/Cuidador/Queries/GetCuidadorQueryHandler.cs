@@ -16,7 +16,7 @@ namespace UDEM.DEVOPS.DogSitter.Application.Cuidador.Queries
     public class GetCuidadorQueryHandler(ICuidadorRepository _repository,
                                    ILogger<GetCuidadorQuery> _logger) : IRequestHandler<GetCuidadorQuery, CuidadorDto>
     {
-        const string TRAZA = "Queried voter with id {request.uid}";
+        const string TRAZA = "Se obtuvo el cuidador {request.uid}";
 
         public async Task<CuidadorDto> Handle(GetCuidadorQuery request, CancellationToken cancellationToken)
         {
