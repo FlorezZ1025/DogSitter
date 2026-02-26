@@ -2,6 +2,7 @@
 using UDEM.DEVOPS.DogSitter.Application.Cuidador.Queries;
 using UDEM.DEVOPS.DogSitter.Domain.Dtos;
 using MediatR;
+using UDEM.DEVOPS.DogSitter.Api.Filters;
 
 namespace UDEM.DEVOPS.DogSitter.Api.ApiHandlers
 {
@@ -27,7 +28,7 @@ namespace UDEM.DEVOPS.DogSitter.Api.ApiHandlers
             {
                 var createdCuidador = await mediator.Send(new RegisterCuidadorCommand(cuidadorDto));
 
-                return Results.Created($"/api/cuidador/{createdCuidador.Id}", createdCuidador);
+                return Results.Created(new Uri($"/api/cuidador/{createdCuidador.Id}", UriKind.Relative), createdCuidador);
             })
             .Produces(StatusCodes.Status201Created, typeof(CuidadorDto));
 

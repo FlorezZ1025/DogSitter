@@ -92,7 +92,7 @@ app.UseRouting().UseEndpoints(endpoint =>
 });
 
 //app.MapGroup("/api/voter").MapVoter().AddEndpointFilterFactory(ValidationFilter.ValidationFilterFactory);
-app.MapGroup("").MapCuidador();
+app.MapGroup("").MapCuidador().AddEndpointFilterFactory(ValidationFilter.ValidationFilterFactory);
 await app.RunAsync();
 
 public partial class Program
