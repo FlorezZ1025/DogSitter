@@ -17,7 +17,6 @@ namespace UDEM.DEVOPS.DogSitter.Api.ApiHandlers
                 return Results.Ok(cuidadores);
             });
 
-
             group.MapGet("/{id}", async (IMediator mediator, Guid id) =>
             {
                 return Results.Ok(await mediator.Send(new GetCuidadorQuery(id)));
@@ -27,9 +26,16 @@ namespace UDEM.DEVOPS.DogSitter.Api.ApiHandlers
             group.MapPost("/", async (IMediator mediator, CreateCuidadorDto cuidadorDto) =>
             {
                 var createdCuidador = await mediator.Send(new RegisterCuidadorCommand(cuidadorDto));
-                return createdCuidador;
+
+                return Results.Created($"/api/cuidador/{createdCuidador.Id}", createdCuidador);
             })
-            .Produces(StatusCodes.Status201Created);
+            .Produces(StatusCodes.Status201Created, typeof(CuidadorDto));
+
+            group.MapPut("/", async (IMediator mediator, UpdateCuidadorDto cuidadorDto) =>
+            {
+                var updatedCuidador = await mediator.Send(new EditCuidadorCommand(cuidadorDto));
+                return Results.Ok(updatedCuidador);
+            }).Produces(StatusCodes.Status200OK, typeof(CuidadorDto));
             return group;
         }
     }
