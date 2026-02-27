@@ -5,6 +5,17 @@ namespace UDEM.DEVOPS.DogSitter.Domain.Mappings
 {
     public static class RazaMappings
     {
+        public static Raza ToEntity(this RazaDto dto)
+        {
+            return new Raza
+            {
+                Id = dto.Id,
+                nombre = dto.nombre,
+                corpulencia = dto.corpulencia,
+                nivelEnergia = dto.nivelEnergia,
+                observacionesGenerales = dto.observacionesGenerales
+            };
+        }
         public static Raza ToEntity(this CreateRazaDto dto)
         {
             return new Raza
@@ -36,5 +47,6 @@ namespace UDEM.DEVOPS.DogSitter.Domain.Mappings
                 observacionesGenerales = raza.observacionesGenerales
             };
         }
+
     }
 }

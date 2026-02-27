@@ -5,11 +5,6 @@ using UDEM.DEVOPS.DogSitter.Domain.Mappings;
 using UDEM.DEVOPS.DogSitter.Domain.Ports;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace UDEM.DEVOPS.DogSitter.Application.Cuidador.Queries
 {
@@ -21,7 +16,7 @@ namespace UDEM.DEVOPS.DogSitter.Application.Cuidador.Queries
         public async Task<CuidadorDto> Handle(GetCuidadorQuery request, CancellationToken cancellationToken)
         {
             var cuidador = await _repository.GetCuidadorAsync(request.id) 
-                                        ?? throw new NotFoundCuidadorException($"El cuidador con el id {request.id} no está registrado");
+                                        ?? throw new NotFoundEntityException($"El cuidador con el id {request.id} no está registrado");
             var dto = cuidador.ToResponseDto();
             _logger.LogInformation(message: TRAZA, args: request.id);
             return dto;

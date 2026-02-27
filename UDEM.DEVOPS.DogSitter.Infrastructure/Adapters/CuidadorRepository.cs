@@ -18,13 +18,6 @@ namespace UDEM.DEVOPS.DogSitter.Infrastructure.Adapters
             return cuidadores.FirstOrDefault();
         }
         public async Task<IEnumerable<Cuidador>> GetAllCuidadoresAync() => await _dataSource.GetManyAsync();
-        public async Task<IEnumerable<Perro>> GetPerrosByCuidadorIdAsync(Guid id)
-        {
-            var cuidador = await _dataSource.GetOneAsync(id)
-                ?? throw new NotFoundCuidadorException("Cuidador no existe"); ;
-            var perros = cuidador.perros;
-            return perros;
-        }
         public async Task<Cuidador> SaveCuidadorAsync(Cuidador c) => await _dataSource.AddAsync(c);
         public async Task<Cuidador> EditCuidadorAsync(Cuidador c) 
         {
@@ -34,7 +27,7 @@ namespace UDEM.DEVOPS.DogSitter.Infrastructure.Adapters
         public async Task<Cuidador> PatchCuidadorAsync(Guid id, UpdateCuidadorDto dto)
         {
             var entity = await _dataSource.GetOneAsync(id)
-                ?? throw new NotFoundCuidadorException("Cuidador no existe");
+                ?? throw new NotFoundEntityException("Cuidador no existe");
             entity.UpdateEntity(dto);
             return await dataSource.UpdateAsync(entity);
         }

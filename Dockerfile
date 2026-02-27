@@ -2,7 +2,7 @@
 # Etapa 1: Build
 # =========================
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
+WORKDIR /.
 
 COPY ["UDEM.DEVOPS.DogSitter.sln", "./"]
 
@@ -13,20 +13,18 @@ COPY ["UDEM.DEVOPS.DogSitter.Application/UDEM.DEVOPS.DogSitter.Application.cspro
 COPY ["UDEM.DEVOPS.DogSitter.Domain/UDEM.DEVOPS.DogSitter.Domain.csproj", "UDEM.DEVOPS.DogSitter.Domain/"]
 COPY ["UDEM.DEVOPS.DogSitter.Domain.Tests/UDEM.DEVOPS.DogSitter.Domain.Tests.csproj", "UDEM.DEVOPS.DogSitter.Domain.Tests/"]
 
-RUN dotnet restore
+RUN dotnet restore UDEM.DEVOPS.DogSitter.sln
 
 COPY . .
-WORKDIR "/src/UDEM.DEVOPS.DogSitter.Api"
+WORKDIR "/UDEM.DEVOPS.DogSitter.Api"
 
-RUN dotnet publish -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish -c Release -o /app/publish --no-restore /p:UseAppHost=false
 
-
-# =========================
 # Etapa 2: Runtime
-# =========================
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 
+ENV ASPNETCORE_URLS=http://+:8080
 COPY --from=build /app/publish .
 
 EXPOSE 8080

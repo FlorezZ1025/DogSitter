@@ -21,7 +21,7 @@ namespace UDEM.DEVOPS.DogSitter.Domain.Services.Cuidador
         public async Task<CuidadorDto> EditCuidadorAsync(UpdateCuidadorDto cuidadorDto)
         {
             var entity = await _cuidadorRepository.GetCuidadorAsync(cuidadorDto.Id);
-            if (entity is null) throw new NotFoundCuidadorException("No se encontró el cuidador a editar");
+            if (entity is null) throw new NotFoundEntityException("No se encontró el cuidador a editar");
             await CheckIfNewEmailExists(cuidadorDto);
             entity.UpdateEntity(cuidadorDto);
             await _cuidadorRepository.EditCuidadorAsync(entity);
