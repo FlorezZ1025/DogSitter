@@ -13,7 +13,7 @@ namespace UDEM.DEVOPS.DogSitter.Domain.Mappings
                 nombre = dto.nombre,
                 telefono = dto.telefono,
                 email = dto.email,
-                fechaInicioExperiencia = dto.fechaInicioExperiencia.ToUniversalTime(),
+                fechaInicioExperiencia = DateTime.SpecifyKind(dto.fechaInicioExperiencia, DateTimeKind.Utc),
                 direccion = dto.direccion,
                 activo = dto.activo,
             };
@@ -26,7 +26,7 @@ namespace UDEM.DEVOPS.DogSitter.Domain.Mappings
                 nombre = dto.nombre,
                 telefono = dto.telefono,
                 email = dto.email,
-                fechaInicioExperiencia = dto.fechaInicioExperiencia.ToUniversalTime(),
+                fechaInicioExperiencia = DateTime.SpecifyKind(dto.fechaInicioExperiencia, DateTimeKind.Utc),
                 direccion = dto.direccion,
                 activo = dto.activo,
             };
@@ -40,7 +40,7 @@ namespace UDEM.DEVOPS.DogSitter.Domain.Mappings
             if (dto.nombre is not null) cuidador.nombre = dto.nombre;
             if (dto.telefono is not null) cuidador.telefono = dto.telefono;
             if (dto.email is not null) cuidador.email = dto.email;
-            if (dto.fechaInicioExperiencia.HasValue) cuidador.fechaInicioExperiencia = dto.fechaInicioExperiencia.Value.ToUniversalTime();
+            if (dto.fechaInicioExperiencia.HasValue) cuidador.fechaInicioExperiencia = DateTime.SpecifyKind(dto.fechaInicioExperiencia.Value, DateTimeKind.Utc);
             if (dto.direccion is not null) cuidador.direccion = dto.direccion;
             if (dto.activo.HasValue) cuidador.activo = dto.activo.Value;
         }

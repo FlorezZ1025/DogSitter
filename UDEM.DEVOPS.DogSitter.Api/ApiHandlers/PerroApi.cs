@@ -43,11 +43,11 @@ namespace UDEM.DEVOPS.DogSitter.Api.ApiHandlers
                 return Results.Ok(updatedPerro);
             }).Produces(StatusCodes.Status200OK, typeof(PerroDto));
 
-            //        group.MapDelete("/{id}", async (IMediator mediator, Guid id) =>
-            //        {
-            //            await mediator.Send(new DeletePerroCommand(id));
-            //            return Results.Ok("Perro eliminado exitosamente");
-            //        });
+            group.MapDelete("/{id}", async (IMediator mediator, Guid id) =>
+            {
+                await mediator.Send(new DeletePerroCommand(id));
+                return Results.Ok("Perro eliminado exitosamente");
+            });
             return group;
         }
     }

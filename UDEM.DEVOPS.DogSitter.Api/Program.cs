@@ -8,9 +8,7 @@ using Prometheus;
 using System.Reflection;
 using UDEM.DEVOPS.DogSitter.Api.ApiHandlers;
 using UDEM.DEVOPS.DogSitter.Api.Filters;
-using UDEM.DEVOPS.DogSitter.Api.Middleware;
-using UDEM.DEVOPS.DogSitter.Domain.Ports;
-using UDEM.DEVOPS.DogSitter.Infrastructure.Adapters;
+using UDEM.DEVOPS.DogSitter.Api.Middleware; 
 using UDEM.DEVOPS.DogSitter.Infrastructure.DataSource;
 using UDEM.DEVOPS.DogSitter.Infrastructure.Extensions;
 
@@ -20,12 +18,13 @@ var config = builder.Configuration;
 builder.Services.AddHttpClient();
 builder.Services.AddHttpContextAccessor();
 builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>(ServiceLifetime.Singleton);
 
 builder.Services.AddDbContext<DataContext>(opts =>
 {
-    opts.UseNpgsql(config.GetConnectionString("db"));
+    opts.UseNpgsql(Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") ?? config.GetConnectionString("db"));
 });
 
 builder.Services.AddHealthChecks()
@@ -65,14 +64,16 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.L
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Docker"))
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
-
+//// Solo redirigir HTTPS fuera de contenedores Docker
+//if (!app.Environment.IsEnvironment("Docker"))
+//{
+//    app.UseHttpsRedirection();
+//}
 app.UseHttpMetrics();
 
 app.UseMiddleware<AppExceptionHandlerMiddleware>();
