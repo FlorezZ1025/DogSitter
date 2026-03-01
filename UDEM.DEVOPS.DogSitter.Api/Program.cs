@@ -1,3 +1,11 @@
+using FluentValidation;
+using MediatR;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.OpenApi.Models;
+using Prometheus;
+using System.Reflection;
 using UDEM.DEVOPS.DogSitter.Api.ApiHandlers;
 using UDEM.DEVOPS.DogSitter.Api.Filters;
 using UDEM.DEVOPS.DogSitter.Api.Middleware;
@@ -5,13 +13,6 @@ using UDEM.DEVOPS.DogSitter.Domain.Ports;
 using UDEM.DEVOPS.DogSitter.Infrastructure.Adapters;
 using UDEM.DEVOPS.DogSitter.Infrastructure.DataSource;
 using UDEM.DEVOPS.DogSitter.Infrastructure.Extensions;
-using FluentValidation;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.OpenApi.Models;
-using Prometheus;
-using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
@@ -61,7 +62,7 @@ builder.Services.AddSwaggerGen(options => {
 });
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.Load("UDEM.DEVOPS.DogSitter.Application")));
-
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -92,8 +93,8 @@ app.UseRouting().UseEndpoints(endpoint =>
 });
 
 //app.MapGroup("/api/voter").MapVoter().AddEndpointFilterFactory(ValidationFilter.ValidationFilterFactory);
-app.MapGroup("").MapCuidador().AddEndpointFilterFactory(ValidationFilter.ValidationFilterFactory);
-app.MapGroup("").MapRaza().AddEndpointFilterFactory(ValidationFilter.ValidationFilterFactory);
+app.MapGroup("").MapCuidador();
+app.MapGroup("").MapRaza();
 await app.RunAsync();
 
 public partial class Program

@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using UDEM.DEVOPS.DogSitter.Application.Cuidador.Commands;
 using UDEM.DEVOPS.DogSitter.Application.Raza.Commands;
 using UDEM.DEVOPS.DogSitter.Application.Raza.Queries;
 using UDEM.DEVOPS.DogSitter.Domain.Dtos;
@@ -30,25 +29,25 @@ namespace UDEM.DEVOPS.DogSitter.Api.ApiHandlers
 
                 return Results.Created(new Uri($"/api/raza/{createdRaza.Id}", UriKind.Relative), createdRaza);
             })
-            .Produces(StatusCodes.Status201Created, typeof(CuidadorDto));
+            .Produces(StatusCodes.Status201Created, typeof(RazaDto));
 
-            //group.MapPut("/", async (IMediator mediator, UpdateCuidadorDto cuidadorDto) =>
-            //{
-            //    var updatedCuidador = await mediator.Send(new EditCuidadorCommand(cuidadorDto));
-            //    return Results.Ok(updatedCuidador);
-            //}).Produces(StatusCodes.Status200OK, typeof(CuidadorDto));
+            group.MapPut("/", async (IMediator mediator, UpdateRazaDto razaDto) =>
+            {
+                var updatedRaza = await mediator.Send(new EditRazaCommand(razaDto));
+                return Results.Ok(updatedRaza);
+            }).Produces(StatusCodes.Status200OK, typeof(RazaDto));
 
-            //group.MapPatch("/", async (IMediator mediator, UpdateCuidadorDto cuidadorDto) =>
-            //{
-            //    var updatedCuidador = await mediator.Send(new PatchCuidadorCommand(cuidadorDto));
-            //    return Results.Ok(updatedCuidador);
-            //}).Produces(StatusCodes.Status200OK, typeof(CuidadorDto));
+            group.MapPatch("/", async (IMediator mediator, UpdateRazaDto razaDto) =>
+            {
+                var updatedRaza = await mediator.Send(new PatchRazaCommand(razaDto));
+                return Results.Ok(updatedRaza);
+            }).Produces(StatusCodes.Status200OK, typeof(RazaDto));
 
-            //group.MapDelete("/{id}", async (IMediator mediator, Guid id) =>
-            //{
-            //    await mediator.Send(new DeleteCuidadorCommand(id));
-            //    return Results.Ok("Cuidador eliminado exitosamente");
-            //});
+            group.MapDelete("/{id}", async (IMediator mediator, Guid id) =>
+            {
+                await mediator.Send(new DeleteRazaCommand(id));
+                return Results.Ok("Raza eliminada exitosamente");
+            });
             return group;
         }
 

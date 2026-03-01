@@ -30,6 +30,9 @@ namespace UDEM.DEVOPS.DogSitter.Domain.Mappings
 
         public static void UpdateEntity(this Raza raza, UpdateRazaDto dto)
         {
+            if (raza is null) throw new ArgumentNullException(nameof(raza));
+            if (dto is null) throw new ArgumentNullException(nameof(dto));
+
             if (dto.nombre is not null) raza.nombre = dto.nombre;
             if (dto.corpulencia is not null) raza.corpulencia = dto.corpulencia;
             if (dto.nivelEnergia is not null) raza.nivelEnergia = dto.nivelEnergia;

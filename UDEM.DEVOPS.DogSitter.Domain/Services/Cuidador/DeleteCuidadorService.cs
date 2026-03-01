@@ -29,7 +29,7 @@ namespace UDEM.DEVOPS.DogSitter.Domain.Services.Cuidador
         {
             if (cuidador.perros != null && cuidador.perros.Any())
             {
-                throw new CuidadorHasPerrosException("No se puede eliminar el cuidador porque tiene perros asociados");
+                throw new DeleteRestrictionException("No se puede eliminar el cuidador porque tiene perros asociados");
             }
         }
     }

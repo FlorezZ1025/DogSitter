@@ -21,7 +21,7 @@ public static class VoterApi
         })
         .Produces(StatusCodes.Status200OK, typeof(VoterDto));
 
-        routeHandler.MapPost("/", async (IMediator mediator, [Validate] VoterRegisterCommand voter) =>
+        routeHandler.MapPost("/", async (IMediator mediator, VoterRegisterCommand voter) =>
         {
             var vote = await mediator.Send(voter);
             return Results.Created(new Uri($"/api/voter/{vote}", UriKind.Relative), vote);
