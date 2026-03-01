@@ -1,4 +1,5 @@
-﻿using UDEM.DEVOPS.DogSitter.Domain.Entities;
+﻿using UDEM.DEVOPS.DogSitter.Domain.Dtos;
+using UDEM.DEVOPS.DogSitter.Domain.Entities;
 
 namespace UDEM.DEVOPS.DogSitter.Domain.Ports
 {
@@ -6,9 +7,9 @@ namespace UDEM.DEVOPS.DogSitter.Domain.Ports
     {
         Task<Perro?> GetPerroAsync(Guid id);
         Task<IEnumerable<Perro>> GetAllAsync();
-        Task<Perro> SavePerroAsync(Perro c);
-        Task<Perro> EditPerroAsync(Perro c);
-        Task<Perro> PatchPerroAsync(Perro c);
+        Task<Perro> SavePerroAsync(Perro p);
+        Task<Perro> EditPerroAsync(Perro p);
+        Task<Perro> PatchPerroAsync(Guid id, UpdatePerroDto dto);
         Task<bool> DeletePerroAsync(Guid id);
     }
 }

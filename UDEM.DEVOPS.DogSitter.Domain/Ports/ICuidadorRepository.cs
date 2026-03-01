@@ -6,7 +6,7 @@ namespace UDEM.DEVOPS.DogSitter.Domain.Ports
     public interface ICuidadorRepository
     {
         Task<Cuidador?> GetCuidadorAsync(Guid id);
-        Task<IEnumerable<Cuidador>> GetAllCuidadoresAync();
+        Task<IEnumerable<Cuidador>> GetAllCuidadoresAsync();
         //Task<IEnumerable<Perro>> GetPerrosByCuidadorIdAsync(Guid cuidadorId);
         Task<Cuidador> SaveCuidadorAsync(Cuidador c);
         Task<Cuidador> EditCuidadorAsync(Cuidador c);   

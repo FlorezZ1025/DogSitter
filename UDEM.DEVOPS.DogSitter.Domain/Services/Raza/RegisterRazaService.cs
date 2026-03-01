@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UDEM.DEVOPS.DogSitter.Domain.Exceptions;
+﻿using UDEM.DEVOPS.DogSitter.Domain.Exceptions;
 using UDEM.DEVOPS.DogSitter.Domain.Ports;
 
 namespace UDEM.DEVOPS.DogSitter.Domain.Services.Raza
@@ -20,6 +15,7 @@ namespace UDEM.DEVOPS.DogSitter.Domain.Services.Raza
         public async Task<Guid> RegisterRazaAsync(Entities.Raza raza)
         {
             await CheckIfExistsAsync(raza);
+            await CheckIfNameIsRegistered(raza);
             await _razaRepository.SaveRazaAsync(raza);
             return raza.Id;
         }

@@ -14,7 +14,7 @@ namespace UDEM.DEVOPS.DogSitter.Application.Cuidador.Queries
 
         public async Task<IEnumerable<CuidadorDto>> Handle(GetAllCuidadoresQuery request, CancellationToken cancellationToken)
         {
-           var cuidadores = await _repository.GetAllCuidadoresAync() 
+           var cuidadores = await _repository.GetAllCuidadoresAsync() 
                                         ?? throw new NotFoundEntityException($"No hay cuidadores registrados");
             var dtos = cuidadores.Select(c => c.ToResponseDto());
             _logger.LogInformation(message: TRAZA);

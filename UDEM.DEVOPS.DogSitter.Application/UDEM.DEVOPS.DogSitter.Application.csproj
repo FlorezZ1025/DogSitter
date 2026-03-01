@@ -16,8 +16,4 @@
     <ProjectReference Include="..\UDEM.DEVOPS.DogSitter.Domain\UDEM.DEVOPS.DogSitter.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Perro\Commands\" />
-  </ItemGroup>
-
 </Project>

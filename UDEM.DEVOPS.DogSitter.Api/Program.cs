@@ -95,6 +95,7 @@ app.UseRouting().UseEndpoints(endpoint =>
 //app.MapGroup("/api/voter").MapVoter().AddEndpointFilterFactory(ValidationFilter.ValidationFilterFactory);
 app.MapGroup("").MapCuidador();
 app.MapGroup("").MapRaza();
+app.MapGroup("").MapPerro();
 await app.RunAsync();
 
 public partial class Program

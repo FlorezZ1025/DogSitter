@@ -1,10 +1,5 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UDEM.DEVOPS.DogSitter.Domain.Dtos;
 using UDEM.DEVOPS.DogSitter.Domain.Mappings;
 using UDEM.DEVOPS.DogSitter.Domain.Ports;
@@ -22,7 +17,6 @@ namespace UDEM.DEVOPS.DogSitter.Application.Raza.Commands
             var razaId = await _service.RegisterRazaAsync(entity);
             await unitOfWork.SaveAsync(cancellationToken);
             _logger.LogInformation(TRAZA, razaId);
-
             return entity.ToResponseDto();
         }
     }

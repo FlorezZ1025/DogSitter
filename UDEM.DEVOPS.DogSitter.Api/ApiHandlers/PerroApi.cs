@@ -1,4 +1,9 @@
-﻿namespace UDEM.DEVOPS.DogSitter.Api.ApiHandlers
+﻿using MediatR;
+using UDEM.DEVOPS.DogSitter.Application.Perro.Commands;
+using UDEM.DEVOPS.DogSitter.Application.Perro.Queries;
+using UDEM.DEVOPS.DogSitter.Domain.Dtos;
+
+namespace UDEM.DEVOPS.DogSitter.Api.ApiHandlers
 {
     public static class PerroApi
     {
@@ -6,41 +11,41 @@
             {
                 var group = routeHandler.MapGroup("/api/perro").WithTags("Perro");
 
-            //        group.MapGet("/", async (IMediator mediator) =>
-            //        {
-            //            var perros = await mediator.Send(new Application.Perro.Queries.GetAllPerrosQuery());
-            //            return Results.Ok(perros);
-            //        });
+            group.MapGet("/", async (IMediator mediator) =>
+            {
+                var perros = await mediator.Send(new GetAllPerrosQuery());
+                return Results.Ok(perros);
+            });
 
-            //        group.MapGet("/{id}", async (IMediator mediator, Guid id) =>
-            //        {
-            //            return Results.Ok(await mediator.Send(new Application.Perro.Queries.GetPerroQuery(id)));
-            //        })
-            //        .Produces(StatusCodes.Status200OK, typeof(Domain.Dtos.PerroDto));
+            group.MapGet("/{id}", async (IMediator mediator, Guid id) =>
+            {
+                return Results.Ok(await mediator.Send(new GetPerroQuery(id)));
+            })
+            .Produces(StatusCodes.Status200OK, typeof(PerroDto));
 
-            //        group.MapPost("/", async (IMediator mediator, Domain.Dtos.CreatePerroDto perroDto) =>
-            //        {
-            //            var createdPerro = await mediator.Send(new Application.Perro.Commands.RegisterPerroCommand(perroDto));
+            group.MapPost("/", async (IMediator mediator, CreatePerroDto perroDto) =>
+            {
+                var createdPerro = await mediator.Send(new RegisterPerroCommand(perroDto));
 
-            //            return Results.Created(new Uri($"/api/perro/{createdPerro.Id}", UriKind.Relative), createdPerro);
-            //        })
-            //        .Produces(StatusCodes.Status201Created, typeof(Domain.Dtos.PerroDto));
+                return Results.Created(new Uri($"/api/perro/{createdPerro.Id}", UriKind.Relative), createdPerro);
+            })
+            .Produces(StatusCodes.Status201Created, typeof(PerroDto));
 
-            //        group.MapPut("/", async (IMediator mediator, Domain.Dtos.UpdatePerroDto perroDto) =>
-            //        {
-            //            var updatedPerro = await mediator.Send(new Application.Perro.Commands.EditPerroCommand(perroDto));
-            //            return Results.Ok(updatedPerro);
-            //        }).Produces(StatusCodes.Status200OK, typeof(Domain.Dtos.PerroDto));
+            group.MapPut("/", async (IMediator mediator, UpdatePerroDto perroDto) =>
+            {
+                var updatedPerro = await mediator.Send(new EditPerroCommand(perroDto));
+                return Results.Ok(updatedPerro);
+            }).Produces(StatusCodes.Status200OK, typeof(PerroDto));
 
-            //        group.MapPatch("/", async (IMediator mediator, Domain.Dtos.UpdatePerroDto perroDto) =>
-            //        {
-            //            var updatedPerro = await mediator.Send(new Application.Perro.Commands.PatchPerroCommand(perroDto));
-            //            return Results.Ok(updatedPerro);
-            //        }).Produces(StatusCodes.Status200OK, typeof(Domain.Dtos.PerroDto));
+            group.MapPatch("/", async (IMediator mediator, UpdatePerroDto perroDto) =>
+            {
+                var updatedPerro = await mediator.Send(new PatchPerroCommand(perroDto));
+                return Results.Ok(updatedPerro);
+            }).Produces(StatusCodes.Status200OK, typeof(PerroDto));
 
             //        group.MapDelete("/{id}", async (IMediator mediator, Guid id) =>
             //        {
-            //            await mediator.Send(new Application.Perro.Commands.DeletePerroCommand(id));
+            //            await mediator.Send(new DeletePerroCommand(id));
             //            return Results.Ok("Perro eliminado exitosamente");
             //        });
             return group;

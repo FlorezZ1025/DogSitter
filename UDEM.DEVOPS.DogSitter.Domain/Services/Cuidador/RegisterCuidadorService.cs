@@ -30,7 +30,7 @@ namespace UDEM.DEVOPS.DogSitter.Domain.Services.Cuidador
         }
         private async Task CheckIfEmailIsRegistered(Entities.Cuidador cuidador)
         {
-            var cuidadores = await _cuidadorRepository.GetAllCuidadoresAync();
+            var cuidadores = await _cuidadorRepository.GetAllCuidadoresAsync();
             foreach (var c in cuidadores)
             {
                 if (c.email == cuidador.email) throw new DuplicatedEmailException($"El email {cuidador.email} se encuentra ya registrado");

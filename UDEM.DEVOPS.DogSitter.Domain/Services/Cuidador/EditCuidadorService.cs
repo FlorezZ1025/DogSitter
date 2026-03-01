@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UDEM.DEVOPS.DogSitter.Domain.Dtos;
+﻿using UDEM.DEVOPS.DogSitter.Domain.Dtos;
 using UDEM.DEVOPS.DogSitter.Domain.Exceptions;
 using UDEM.DEVOPS.DogSitter.Domain.Mappings;
 using UDEM.DEVOPS.DogSitter.Domain.Ports;
@@ -31,7 +26,7 @@ namespace UDEM.DEVOPS.DogSitter.Domain.Services.Cuidador
         {
             if(cuidador.email != null)
             {
-                var cuidadores = await _cuidadorRepository.GetAllCuidadoresAync();
+                var cuidadores = await _cuidadorRepository.GetAllCuidadoresAsync();
                 foreach (var c in cuidadores)
                 {
                     if (c.email == cuidador.email && c.Id != cuidador.Id) throw new DuplicatedEmailException($"El email {cuidador.email} ya se encuentra registrado, debe registrar otro");
