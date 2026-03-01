@@ -5,9 +5,6 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 ENV ASPNETCORE_URLS=http://+:8080
-ENV ASPNETCORE_ENVIRONMENT=Docker
-ENV DOTNET_SYSTEM_NET_DISABLEIPV6=1
-ENV DB_CONNECTION_STRING="Host=db.nvfvezcvzsrhconbxcpv.supabase.co;Port=5432;Database=postgres;Username=postgres;Password=oWZz3EcdlD1MmRdF;SSL Mode=Require;Trust Server Certificate=true;Timeout=30;Command Timeout=30"
 
 # Esta fase se usa para compilar el proyecto de servicio
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
