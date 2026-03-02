@@ -21,6 +21,7 @@ namespace UDEM.DEVOPS.DogSitter.Domain.Dtos
 
     public record UpdateRazaDto
     {
+        public Guid Id { get; set; }
         public string? nombre { get; set; }
         public string? corpulencia { get; set; }
         public string? nivelEnergia { get; set; }

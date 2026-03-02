@@ -1,15 +1,28 @@
 ﻿using UDEM.DEVOPS.DogSitter.Domain.Dtos;
 using UDEM.DEVOPS.DogSitter.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace UDEM.DEVOPS.DogSitter.Domain.Mappings
 {
     public static class PerroMappings
     {
+        public static Perro ToEntity(this PerroDto dto)
+        {
+            return new Perro
+            {
+                Id = dto.Id,
+                nombre = dto.nombre,
+                edad = dto.edad,
+                peso = dto.peso,
+                razaId = dto.razaId,
+                raza = null!,
+                cuidadorId = dto.cuidadorId,
+                cuidador = null!,
+                tipoComida = dto.tipoComida,
+                horarioComida = dto.horarioComida,
+                alergias = dto.alergias,
+                observaciones = dto.observaciones
+            };
+        }
         public static Perro ToEntity(this CreatePerroDto dto)
         {
             return new Perro

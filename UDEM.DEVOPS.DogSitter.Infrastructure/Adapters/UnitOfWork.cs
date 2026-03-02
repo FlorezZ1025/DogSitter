@@ -1,10 +1,11 @@
 using UDEM.DEVOPS.DogSitter.Infrastructure.DataSource;
 using Microsoft.EntityFrameworkCore;
 using UDEM.DEVOPS.DogSitter.Domain.Ports;
+using Microsoft.Extensions.Logging;
 
 namespace UDEM.DEVOPS.DogSitter.Infrastructure.Adapters;
 
-public class UnitOfWork(DataContext context) : IUnitOfWork
+public class UnitOfWork(DataContext context, ILogger<UnitOfWork> _logger) : IUnitOfWork
 {
     private readonly DataContext _context = context;
 
@@ -23,7 +24,14 @@ public class UnitOfWork(DataContext context) : IUnitOfWork
         {
             e.Property(entryStatus[e.State]).CurrentValue = DateTime.UtcNow;
         });
+        try
+        {
+            await _context.SaveChangesAsync(token);
+        }catch(Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while saving changes to the database.");
+            throw new Exception($"Error en unit of work {ex.InnerException}", ex.InnerException);
+        }
 
-        await _context.SaveChangesAsync(token);
     }
 }

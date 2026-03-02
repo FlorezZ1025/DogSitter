@@ -1,17 +1,16 @@
-using UDEM.DEVOPS.DogSitter.Api.ApiHandlers;
-using UDEM.DEVOPS.DogSitter.Api.Filters;
-using UDEM.DEVOPS.DogSitter.Api.Middleware;
-using UDEM.DEVOPS.DogSitter.Domain.Ports;
-using UDEM.DEVOPS.DogSitter.Infrastructure.Adapters;
-using UDEM.DEVOPS.DogSitter.Infrastructure.DataSource;
-using UDEM.DEVOPS.DogSitter.Infrastructure.Extensions;
 using FluentValidation;
+using MediatR;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
 using Prometheus;
 using System.Reflection;
+using UDEM.DEVOPS.DogSitter.Api.ApiHandlers;
+using UDEM.DEVOPS.DogSitter.Api.Filters;
+using UDEM.DEVOPS.DogSitter.Api.Middleware; 
+using UDEM.DEVOPS.DogSitter.Infrastructure.DataSource;
+using UDEM.DEVOPS.DogSitter.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
@@ -19,12 +18,13 @@ var config = builder.Configuration;
 builder.Services.AddHttpClient();
 builder.Services.AddHttpContextAccessor();
 builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>(ServiceLifetime.Singleton);
 
 builder.Services.AddDbContext<DataContext>(opts =>
 {
-    opts.UseNpgsql(config.GetConnectionString("db"));
+    opts.UseNpgsql(Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") ?? config.GetConnectionString("db"));
 });
 
 builder.Services.AddHealthChecks()
@@ -61,17 +61,19 @@ builder.Services.AddSwaggerGen(options => {
 });
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.Load("UDEM.DEVOPS.DogSitter.Application")));
-
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Docker"))
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
-
+//// Solo redirigir HTTPS fuera de contenedores Docker
+//if (!app.Environment.IsEnvironment("Docker"))
+//{
+//    app.UseHttpsRedirection();
+//}
 app.UseHttpMetrics();
 
 app.UseMiddleware<AppExceptionHandlerMiddleware>();
@@ -93,6 +95,8 @@ app.UseRouting().UseEndpoints(endpoint =>
 
 //app.MapGroup("/api/voter").MapVoter().AddEndpointFilterFactory(ValidationFilter.ValidationFilterFactory);
 app.MapGroup("").MapCuidador();
+app.MapGroup("").MapRaza();
+app.MapGroup("").MapPerro();
 await app.RunAsync();
 
 public partial class Program

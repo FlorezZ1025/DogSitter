@@ -7,10 +7,12 @@
         public required short edad { get; set; }
         public required decimal peso { get; set; }
         public Guid razaId { get; set; }
+        public RazaDto? raza { get; set; }
         public Guid cuidadorId { get; set; }
+        public CuidadorDto? cuidador { get; set; }
         public required string tipoComida { get; set; }
         public required string horarioComida { get; set; }
-        public required string alergias { get; set; }
+        public string? alergias { get; set; }
         public string? observaciones { get; set; } = null;
     }
 
@@ -23,12 +25,13 @@
         public required Guid cuidadorId { get; set; }
         public required string tipoComida { get; set; }
         public required string horarioComida { get; set; }
-        public required string alergias { get; set; }
+        public string? alergias { get; set; }
         public string? observaciones { get; set; } = null;
     };
 
     public record UpdatePerroDto
     {
+        public Guid Id { get; set; }
         public string? nombre { get; set; }
         public short? edad { get; set; }
         public decimal? peso { get; set; }

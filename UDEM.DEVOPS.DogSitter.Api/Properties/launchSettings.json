@@ -22,7 +22,13 @@
       "commandName": "Docker",
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
-      "publishAllPorts": true
+      "publishAllPorts": true,
+      "httpPort": 8080,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Docker",
+        "ASPNETCORE_URLS": "http://+:8080",
+        "DOTNET_SYSTEM_NET_DISABLEIPV6": "1"
+      }
     }
   },
   "$schema": "https://json.schemastore.org/launchsettings.json",

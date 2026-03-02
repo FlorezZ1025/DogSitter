@@ -14,7 +14,7 @@ public class VoterQueryHandler(IVoterRepository _repository,
     public async Task<VoterDto> Handle(VoterQuery request, CancellationToken cancellationToken)
     {
         var voter = await _repository.ExistsAsync(request.Uid)
-                                    ?? throw new NotFoundCuidadorException($"The voter with the id {request.Uid} does not exist");
+                                    ?? throw new NotFoundEntityException($"The voter with the id {request.Uid} does not exist");
 
         _logger.LogInformation(message: TRAZA, args: request.Uid);
 

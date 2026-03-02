@@ -87,7 +87,7 @@ public class RecordVoterTests
         _repository.ExistsAsync(Arg.Any<Guid>()).Returns(voter);
 
         //Act
-        DuplicatedVoterException exception = await Assert.ThrowsAsync<DuplicatedVoterException>(async () => await _service.RecordVoterAsync(voter));
+        DuplicatedEntityException exception = await Assert.ThrowsAsync<DuplicatedEntityException>(async () => await _service.RecordVoterAsync(voter));
 
         //Assert
         await _repository.Received(requiredNumberOfCalls: 1).ExistsAsync(Arg.Any<Guid>());

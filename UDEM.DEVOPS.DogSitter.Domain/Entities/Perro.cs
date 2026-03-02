@@ -17,7 +17,7 @@ namespace UDEM.DEVOPS.DogSitter.Domain.Entities
         public required Cuidador cuidador { get; set; }
         public required string tipoComida { get; set; } 
         public required string horarioComida { get; set; }
-        public required string alergias { get; set;  }
+        public string? alergias { get; set;  }
         public string? observaciones { get; set; } = null;
     }
 }
