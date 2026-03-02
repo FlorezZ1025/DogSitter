@@ -26,8 +26,9 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
-      - name: Build
-        run: dotnet build --no-restore --configuration Release
+      - name: Restore dependencies (force explicit nuget.org)
+        run: |
+          dotnet restore --no-cache --force --source "https://api.nuget.org/v3/index.json"
 
       - name: Run tests with coverage
         run: |
