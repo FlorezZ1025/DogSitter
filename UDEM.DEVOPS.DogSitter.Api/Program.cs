@@ -64,11 +64,14 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.L
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Docker"))
+
+app.UseSwagger();
+app.UseSwaggerUI(options =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "DogSitter API V1");
+    options.RoutePrefix = string.Empty;
+});
+
 //// Solo redirigir HTTPS fuera de contenedores Docker
 //if (!app.Environment.IsEnvironment("Docker"))
 //{
