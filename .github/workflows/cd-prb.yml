@@ -21,4 +21,4 @@ jobs:
           echo "CI passed — deploying to PRB environment..."
           curl --silent --show-error --fail \
             --request POST "${{ secrets.RENDER_DEPLOY_HOOK_PRB }}"
-          echo "Deploy triggered successfully.
+          echo "Deploy triggered successfully."
