@@ -20,5 +20,5 @@ jobs:
         run: |
           echo "CI passed — deploying to PRD environment..."
           curl --silent --show-error --fail \
-            --request POST "${{ secrets.RENDER_DEPLOY_HOOK_PRD4 }}"
+            --request POST "${{ secrets.RENDER_DEPLOY_HOOK_PRD }}"
           echo "Deploy triggered successfully."
