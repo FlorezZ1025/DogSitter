@@ -16,7 +16,6 @@ public class DataContext(DbContextOptions<DataContext> options) : DbContext(opti
         }
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(DataContext).Assembly);
-        modelBuilder.Ignore<Voter>();
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
             var t = entityType.ClrType;

@@ -1,11 +1,14 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
+using System;
+using System.Diagnostics.CodeAnalysis;
 
 #nullable disable
 
 namespace UDEM.DEVOPS.DogSitter.Infrastructure.Migrations
 {
     /// <inheritdoc />
+    /// 
+    [ExcludeFromCodeCoverage]
     public partial class initialMigration : Migration
     {
         /// <inheritdoc />

@@ -56,8 +56,10 @@ public class GenericRepository<T> : IRepository<T> where T : DomainEntity
 
     public async Task<bool> DeleteAsync(Guid id)
     {
-        var affected = await Dataset.Where(e => e.Id == id).ExecuteDeleteAsync();
-        return affected > 0;
+        var entity = await Dataset.FindAsync(id);
+        if (entity is null) return false;
+        Dataset.Remove(entity);
+        return true;
     }
 
     public async Task<T> GetOneAsync(Guid id)

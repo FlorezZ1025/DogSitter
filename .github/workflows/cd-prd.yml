@@ -1,0 +1,24 @@
+name: CD - PRD
+
+on:
+  workflow_run:
+    workflows:
+      - "CI - PRD"
+    branches:
+      - main
+    types:
+      - completed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: prd
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Trigger Render deploy (PRD)
+        run: |
+          echo "CI passed — deploying to PRD environment..."
+          curl --silent --show-error --fail \
+            --request POST "${{ secrets.RENDER_DEPLOY_HOOK_PRD }}"
+          echo "Deploy triggered successfully."

@@ -1,5 +1,4 @@
-﻿using UDEM.DEVOPS.DogSitter.Application.Voters;
-using UDEM.DEVOPS.DogSitter.Domain.Dtos;
+﻿using UDEM.DEVOPS.DogSitter.Domain.Dtos;
 using UDEM.DEVOPS.DogSitter.Domain.Exceptions;
 using UDEM.DEVOPS.DogSitter.Domain.Mappings;
 using UDEM.DEVOPS.DogSitter.Domain.Ports;

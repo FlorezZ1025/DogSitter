@@ -1,0 +1,71 @@
+name: CI - PRD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Run tests with coverage
+        run: |
+          dotnet test --no-build --configuration Release --verbosity normal \
+            --collect:"XPlat Code Coverage" \
+            --results-directory ./coverage \
+            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.ExcludeByFile="**/Migrations/*.cs"
+
+      - name: Install ReportGenerator
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool
+
+      - name: Merge coverage reports and generate summary
+        run: |
+          reportgenerator \
+            -reports:"./coverage/**/coverage.cobertura.xml" \
+            -targetdir:"./coverage/report" \
+            -reporttypes:"Cobertura;TextSummary"
+
+      - name: Display coverage summary
+        run: cat ./coverage/report/Summary.txt
+
+      - name: Validate coverage quality gate (>= 85%)
+        run: |
+          LINE_RATE=$(grep -o 'line-rate="[^"]*"' ./coverage/report/Cobertura.xml | head -1 | sed 's/line-rate="//;s/"//')
+          COVERAGE=$(echo "scale=2; $LINE_RATE * 100" | bc)
+          echo "Line coverage: ${COVERAGE}%"
+
+          THRESHOLD=85
+          PASS=$(echo "$COVERAGE >= $THRESHOLD" | bc -l)
+
+          if [ "$PASS" -eq 1 ]; then
+            echo "Coverage ${COVERAGE}% - Mayor a ${THRESHOLD}% - Pasa la prueba de calidad"
+          else
+            echo "Coverage ${COVERAGE}% - Por debajo de ${THRESHOLD}% - Se detiene la ejecución"
+            exit 1
+          fi
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: ./coverage/report/
