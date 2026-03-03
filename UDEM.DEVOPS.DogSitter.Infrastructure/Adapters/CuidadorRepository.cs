@@ -15,7 +15,10 @@ namespace UDEM.DEVOPS.DogSitter.Infrastructure.Adapters
         public async Task<IEnumerable<Cuidador>> GetAllCuidadoresAsync() => await _dataSource.GetManyAsync();
         public async Task<Cuidador?> GetCuidadorAsync(Guid id)
         {
-            var cuidadores = await _dataSource.GetManyAsync(filter: p => p.Id == id);
+            var cuidadores = await _dataSource.GetManyAsync(
+                                            filter: p => p.Id == id,
+                                            includeStringProperties: "perros");
+                                        
             return cuidadores.FirstOrDefault();
         }
         public async Task<Cuidador> SaveCuidadorAsync(Cuidador c) => await _dataSource.AddAsync(c);
