@@ -19,7 +19,9 @@ namespace UDEM.DEVOPS.DogSitter.Infrastructure.Adapters
 
         public async Task<Raza?> GetRazaAsync(Guid id)
         {
-            var razas = await dataSource.GetManyAsync(filter: p => p.Id == id);
+            var razas = await dataSource.GetManyAsync(
+                                            filter: p => p.Id == id,
+                                            includeStringProperties: "perros");
             return razas.FirstOrDefault();
         }
         public async Task<Raza> SaveRazaAsync(Raza r) => await dataSource.AddAsync(r);
