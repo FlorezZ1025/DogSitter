@@ -31,7 +31,7 @@ El dominio nunca tiene conocimiento de quién envía o recibe la entrada/salida,
 Patrón con el cual se divide el modelo de objetos en dos responsabilidades:
 
 | Tipo | Descripción |
-|---|---|---|
+|---|---|
 | **Query** | Presenta datos en la interfaz; los objetos se modelan según lo que se va a mostrar, no según la lógica de negocio 
 | **Command** | Operaciones que cambian el estado del sistema (registrar, editar, eliminar) |
 
