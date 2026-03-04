@@ -1,75 +1,251 @@
-Este bloque contiene la estructura necesaria para construir un proyecto con net8 de tipo Domain Centric (Hex, Clean, Onion).
+# 🐾 DogSitter API
 
-Los principales patrones y estilos de arquitectura que guían este bloque son
+> Microservicio RESTful para la gestión de un servicio de cuidado de perros, construido con **.NET 8 Minimal APIs** y arquitectura hexagonal.
 
-## Arquitectura de Puertos y Adaptadores
-La idea de Puertos y Adaptadores es que la aplicación(Dominio) sea el centro del sistema. Todas las entradas y salidas alcanzan o dejan el dominio a traves de un puerto. Este puerto aisla el dominio de las tecnologias externas, herramientas y mecánicas de entrega.
+---
 
-El dominio mismo nunca deberia tener ningún conocimiento de quien envía o recibe la entrada y salida. Esto le permite al sistema estar asegurado contra la evolución de la tecnología y los requerimientos del negocio.
+## 📑 Tabla de contenido
 
-Más información [aquí](https://www.thinktocode.com/2018/07/19/ports-and-adapters-architecture/)
+- [Arquitectura](#-arquitectura)
+- [Stack Tecnológico](#️-stack-tecnológico)
+- [Estructura del proyecto](#-estructura-del-proyecto)
+- [Recursos de la API](#-recursos-de-la-api)
+- [Configuración local](#️-configuración-local)
+- [Pruebas](#-pruebas)
+- [CI/CD](#-cicd--github-actions)
 
-## CQRS (Commmand Query Responsability Segregation):
-Patrón con el cual dividimos nuestro modelo de objetos en dos, un modelo para consulta(Query) y un modelo para comando(Command). Este patrón es recomendado cuando se va desarrollar lógica de negocio compleja porque nos ayuda a separar las responsabilidades y a mantener un modelo de negocio consistente.
+---
 
-* Consulta: modelo a través del cual se divide la responsabilidad para presentar datos en la interfaz de usuario, los objetos se modelan basado en lo que se va a presentar y no en la lógica de negocio, ejm: ver facturas, consultar clientes. Para las consultas en esta plantilla usamos Dapper.
-* Comando: son todas las operaciones que cambian el estado del sistema, ejm: (facturar, aplicar descuento), este modelo se construye todo el modelo de objetos basado en la lógica de negocio de la aplicación. Las operaciones de cambio de estado del sistema las hacemos a traves de EntityFrameworkCore.
+## 📐 Arquitectura
 
-Más información [aquí](https://docs.microsoft.com/en-us/azure/architecture/patterns/cqrs)
+Los principales patrones y estilos de arquitectura que guían este proyecto son:
 
-## HealthCheck
-Health checks son expuestos por una aplicación como endpoints http. Los endpoints pueden ser configurados para una variedad de escenarios de monitoreo en tiempo real:
+### Puertos y Adaptadores (Hexagonal)
 
-Pruebas de Salud : pueden ser usados por orquestadores de contenedores y balanceadores de carga para verificar el estado de salud de una aplicacion.
-Uso de memoria, disco, y otros recursos fisicos del servidor que pueden ser monitoreados por estado de saludable.
-Health checks pueden testear dependencias de una aplicación, como bases de datos y servicios externos para confirmar la disponibilidad de los mismos.
-Más información [aquí](https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/health-checks?view=aspnetcore-3.1)
+La aplicación (Dominio) es el centro del sistema. Todas las entradas y salidas alcanzan o dejan el dominio a través de un **puerto**. Este puerto aisla el dominio de las tecnologías externas, herramientas y mecánicas de entrega.
 
-## Especificaciones técnicas:
-* Plantilla de microservicios con Net8 (Top level statements, minimal apis, mapgroup - for endpoints,  global usings, records, more...)
-* Listo para contenerizar con Docker
-* Entity Framework Core 8(MSSql: database + schema) Code First 
-* FluentValidation
-* Dapper 
-* Repositorio Genérico (muy útil con el manejo de agregados) y extendido (usado para ocultar caracteristicas no necesarias del generico)
-* Shadow Properties en entidades : Propiedades de que se añaden a las entidades de dominio sin "envenenar" la definicion propia de la entidad en esa capa
-* Inyeccion automática de Domain Services usando anotacion "[DomainService]" y de repositorios "[Repository]"
-* MediaTR : registra manejadores de commands y queries de forma automática (via reflexion hace scan del assembly)
-* Manejador de Excepciones Global
-* Pruebas Unitarias (Domain) con Xunit
-* NSubstitute para Mocking
-* Pruebas de Integración (Api) con XUnit
-* Logs : disco y ElasticSearch
-* Swagger
-* HealthCheck (para base de datos, endpoint "/healthz") 
-* Ejemplo de Comand + Query + Handlers
-* Exposición de metricas con prometheus
+El dominio nunca tiene conocimiento de quién envía o recibe la entrada/salida, lo que le permite estar asegurado contra la evolución de la tecnología y los requerimientos del negocio.
 
-### Estructura del proyecto:
-Solucion para VisualStudio(.sln) compuesta de los siguientes carpetas :
+### CQRS (Command Query Responsibility Segregation)
 
-* Api : Api Rest, punto de entrada de la aplicación
-* Api.Tests : Integration Tests para la Api Rest
-* Application : Capa de orquestacion de servicios de dominio; Ports, Commands, Queries, Handlers
-* Infrastructure : Adapters
-* Domain : Entities, Value Objects, Ports, Domain Services, Aggregates
-* Domain.Tests : Unit Tests para Domain Services
+Patrón con el cual se divide el modelo de objetos en dos responsabilidades:
 
-Estructura del proyecto
+| Tipo | Descripción |
+|---|---|---|
+| **Query** | Presenta datos en la interfaz; los objetos se modelan según lo que se va a mostrar, no según la lógica de negocio 
+| **Command** | Operaciones que cambian el estado del sistema (registrar, editar, eliminar) |
 
+### Especificaciones técnicas destacadas
 
-## Registro eventos Monitoreo - Configuración ILogger
-Una vez configurado el componente de Auditoría, podemos agregar la configuración para el ILogger que también nos enviará trazas de información al contenedor de Monitoreo. En caso de que se requiera configurar, seguir [la guía de configuración](https://dev.azure.com/XM-Mercado/WIKI%20EQUIPO%20TI/_wiki/wikis/Wiki%20XM/2932/Nuget-Auditor%C3%ADa?anchor=configuraci%C3%B3n-y-uso-de-ilogger-personalizado-para-monitoreo).
+- ✅ **EF Core 8 Code First** con migraciones versionadas
+- ✅ **Repositorio Genérico** (`GenericRepository<T>`) para manejo de agregados
+- ✅ **Shadow Properties** — propiedades de infraestructura sin contaminar las entidades de dominio
+- ✅ **Inyección automática** de Domain Services (`[DomainService]`) y repositorios (`[Repository]`) via reflexión
+- ✅ **MediatR** — registra handlers de Commands y Queries automáticamente via scan del assembly
+- ✅ **ValidationBehavior** — pipeline de validación con FluentValidation integrado en MediatR
+- ✅ **Manejador de Excepciones Global** via middleware
+- ✅ **Listo para contenerizar** con Docker
 
-**Notas Adicionales**
-* Ya este proyecto ha pasado por integración continua y análisis de codigo estático en Sonar, con las exclusiones válidas y los tests al codigo demo incuido tiene un nivel de coverage aceptable. 
-* Al usar esta plantilla ustede debe encargarse de eliminar todo el codigo asociado a los demos y producir el suyo y las pruebas para estos.
-* Esta plantilla incluye un pipeline de CI para AzureDevOps, por favor ajustela a sus necesidades en caso de usar esta plataforma en su ALM.
-* Como parte de las politicas de la compañía, en el pipeline se incluyen la tarea de ejecución de test de mutacion [Stryker](https://stryker-mutator.io/docs/) , solo debe cerciorarse que estas se ejecuten. En esencia, como lo describe el pipeline : 
-1. Se debe instalar stryker en el pipeline 
-   > update dotnet-stryker --tool-path $(Agent.BuildDirectory)/tools
-2. Se ejecutan las pruebas 
-   > dotnet stryker --reporters "['html','json']"
+### Capas del proyecto
 
-## Configuración de sonar
-Para configurar SonarQube correctamente, es necesario reemplazar los valores de projectKey y projectName en la configuración del proyecto con los valores correspondientes. Por ejemplo: Xm.XmDogSitter.XmDogWalker
+| Proyecto | Responsabilidad |
+|---|---|
+| `DogSitter.Api` | API REST, punto de entrada, Swagger, Middleware, Prometheus |
+| `DogSitter.Api.Tests` | Pruebas de integración para la API REST |
+| `DogSitter.Application` | Orquestación de servicios de dominio; Commands, Queries, Handlers |
+| `DogSitter.Domain` | Entidades, Servicios de Dominio, Ports, DTOs, Excepciones |
+| `DogSitter.Domain.Tests` | Pruebas unitarias para servicios de dominio y entidades |
+| `DogSitter.Infrastructure` | EF Core, DataContext, Adapters y Migraciones |
+
+---
+
+## 🛠️ Stack Tecnológico
+
+| Tecnología | Versión | Uso |
+|---|---|---|
+| **.NET** | 8 | Framework principal |
+| **PostgreSQL + Npgsql** | — | Base de datos relacional |
+| **Entity Framework Core** | 8.0.11 | ORM, migraciones, Code First |
+| **MediatR** | — | Patrón CQRS |
+| **FluentValidation** | — | Validación de DTOs |
+| **Swagger / OpenAPI** | — | Documentación interactiva + auth JWT |
+| **xUnit** | — | Pruebas unitarias y de integración |
+| **NSubstitute** | — | Mocking en pruebas unitarias |
+| **EF Core InMemory** | 8.0.11 | Base de datos en memoria para tests |
+
+---
+
+## 📁 Estructura del proyecto
+
+```
+DogSitter/
+├── 📂 .github/
+│   └── workflows/
+│       ├── ci-prb.yml          # CI rama develop (quality gate 60%)
+│       ├── cd-prb.yml          # Deploy a PRB en Render
+│       ├── ci-prd.yml          # CI rama main (quality gate 85%)
+│       └── cd-prd.yml          # Deploy a PRD en Render
+├── 📂 UDEM.DEVOPS.DogSitter.Api/
+│   ├── ApiHandlers/            # Endpoints Minimal API (Cuidador, Perro, Raza)
+│   ├── Filters/                # ValidationFilter para FluentValidation
+│   ├── Middleware/             # AppExceptionHandlerMiddleware
+│   └── Program.cs
+├── 📂 UDEM.DEVOPS.DogSitter.Application/
+│   ├── Cuidador/Commands|Queries|Handlers
+│   ├── Perro/Commands|Queries|Handlers
+│   └── Raza/Commands|Queries|Handlers
+├── 📂 UDEM.DEVOPS.DogSitter.Domain/
+│   ├── Entities/               # Cuidador, Perro, Raza, DomainEntity
+│   ├── Services/               # Servicios de dominio con [DomainService]
+│   ├── Ports/                  # Interfaces de repositorios
+│   ├── Dtos/                   # DTOs de entrada y salida
+│   ├── Mappings/               # Extensiones de mapeo entre entidades y DTOs
+│   └── Exceptions/             # NotFoundEntityException, DeleteRestrictionException
+├── 📂 UDEM.DEVOPS.DogSitter.Infrastructure/
+│   ├── Adapters/               # GenericRepository<T>, CuidadorRepo, PerroRepo, RazaRepo
+│   ├── DataSource/             # DataContext, ModelConfig (Fluent API)
+│   ├── Extensions/             # AutoLoadServices (reflexión)
+│   └── Migrations/
+├── 📂 UDEM.DEVOPS.DogSitter.Domain.Tests/
+└── 📂 UDEM.DEVOPS.DogSitter.Api.Tests/
+```
+
+---
+
+## 🐶 Recursos de la API
+
+### Cuidador — `/api/cuidador`
+
+| Método | Endpoint | Descripción |
+|---|---|---|
+| `GET` | `/api/cuidador` | Lista todos los cuidadores |
+| `GET` | `/api/cuidador/{id}` | Obtiene un cuidador por ID |
+| `POST` | `/api/cuidador` | Registra un nuevo cuidador |
+| `PUT` | `/api/cuidador` | Actualiza un cuidador completo |
+| `PATCH` | `/api/cuidador` | Actualiza parcialmente un cuidador |
+| `DELETE` | `/api/cuidador/{id}` | Elimina un cuidador *(falla si tiene perros asociados)* |
+
+### Perro — `/api/perro`
+
+| Método | Endpoint | Descripción |
+|---|---|---|
+| `GET` | `/api/perro` | Lista todos los perros |
+| `GET` | `/api/perro/{id}` | Obtiene un perro por ID |
+| `POST` | `/api/perro` | Registra un nuevo perro |
+| `PUT` | `/api/perro` | Actualiza un perro completo |
+| `PATCH` | `/api/perro` | Actualiza parcialmente un perro |
+| `DELETE` | `/api/perro/{id}` | Elimina un perro |
+
+### Raza — `/api/raza`
+
+| Método | Endpoint | Descripción |
+|---|---|---|
+| `GET` | `/api/raza` | Lista todas las razas |
+| `GET` | `/api/raza/{id}` | Obtiene una raza por ID |
+| `POST` | `/api/raza` | Registra una nueva raza |
+| `PUT` | `/api/raza` | Actualiza una raza completa |
+| `PATCH` | `/api/raza` | Actualiza parcialmente una raza |
+| `DELETE` | `/api/raza/{id}` | Elimina una raza *(falla si tiene perros asociados)* |
+
+### Observabilidad
+
+| Endpoint | Descripción |
+|---|---|
+| `/` | Swagger UI (documentación interactiva) |
+| `/healthz` | Health check de la aplicación y la base de datos |
+| `/metrics` | Métricas Prometheus |
+
+---
+
+## ⚙️ Configuración local
+
+### Prerrequisitos
+
+- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [PostgreSQL](https://www.postgresql.org/download/) corriendo localmente
+
+### 1. Clonar el repositorio
+
+```bash
+git clone https://github.com/FlorezZ1025/DogSitter.git
+cd DogSitter
+```
+
+### 2. Configurar la cadena de conexión
+
+Edita `UDEM.DEVOPS.DogSitter.Api/appsettings.Development.json`:
+
+```json
+{
+  "ConnectionStrings": {
+	"db": "Host=localhost;Port=5432;Database=dogsitter;Username=postgres;Password=tu_password"
+  }
+}
+```
+
+O define la variable de entorno (recomendado para producción/Docker):
+
+```bash
+export DB_CONNECTION_STRING="Host=localhost;Port=5432;Database=dogsitter;Username=postgres;Password=tu_password"
+```
+
+### 3. Aplicar migraciones
+
+```bash
+dotnet ef database update \
+  --project UDEM.DEVOPS.DogSitter.Infrastructure \
+  --startup-project UDEM.DEVOPS.DogSitter.Api
+```
+
+### 4. Ejecutar la API
+
+```bash
+cd UDEM.DEVOPS.DogSitter.Api
+dotnet run
+```
+
+La documentación Swagger estará disponible en `http://localhost:<puerto>` directamente en la raíz.
+
+---
+
+## 🧪 Pruebas
+
+```bash
+dotnet test --configuration Release \
+  --collect:"XPlat Code Coverage" \
+  --results-directory ./coverage \
+  -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.ExcludeByFile="**/Migrations/*.cs"
+```
+
+| Suite | Proyecto | Herramientas |
+|---|---|---|
+| Unitarias (dominio) | `DogSitter.Domain.Tests` | xUnit + NSubstitute |
+| Integración (API) | `DogSitter.Api.Tests` | xUnit + EF InMemory |
+
+---
+
+## 🚀 CI/CD — GitHub Actions
+
+El proyecto tiene pipelines automáticos separados por ambiente:
+
+| Workflow | Rama | Trigger | Quality Gate |
+|---|---|---|---|
+| `ci-prb.yml` | `develop` | push / PR | ≥ **60%** cobertura de líneas |
+| `cd-prb.yml` | `develop` | CI-PRB exitoso | Deploy a **PRB** en Render |
+| `ci-prd.yml` | `main` | push / PR | ≥ **85%** cobertura de líneas |
+| `cd-prd.yml` | `main` | CI-PRD exitoso | Deploy a **PRD** en Render |
+
+### Flujo completo
+
+```
+Push develop ──► CI-PRB (build + test + coverage ≥ 60%) ──► CD-PRB (Render PRB)
+
+Push main    ──► CI-PRD (build + test + coverage ≥ 85%) ──► CD-PRD (Render PRD)
+```
+
+---
+
+## 👤 Autor - Santiago Arango Flórez
+
+Desarrollado como proyecto de la materia **DevOps** en 
+**Universidad de Medellín (UDEM)**
