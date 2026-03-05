@@ -15,7 +15,8 @@ public class DomainEntityTests
         entity.Id = id;
 
         //Assert
-        Assert.Equal(id, entity.Id);
+        //Fallo
+        Assert.Equal(id, Guid.Empty);
     }
 
     [Fact]
@@ -25,7 +26,9 @@ public class DomainEntityTests
         var entity = new DomainEntity();
 
         //Assert
-        Assert.Equal(Guid.Empty, entity.Id);
+        //Fallo
+        //Assert.Equal(Guid.Empty, entity.Id);
+        Assert.NotEqual(Guid.Empty, entity.Id);
     }
 }
 

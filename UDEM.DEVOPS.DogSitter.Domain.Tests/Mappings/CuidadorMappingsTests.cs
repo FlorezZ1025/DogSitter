@@ -25,13 +25,14 @@ public class CuidadorMappingsTests
         var entity = dto.ToEntity();
 
         //Assert
-        Assert.Equal(dto.Id, entity.Id);
-        Assert.Equal(dto.nombre, entity.nombre);
-        Assert.Equal(dto.telefono, entity.telefono);
-        Assert.Equal(dto.email, entity.email);
-        Assert.Equal(dto.direccion, entity.direccion);
-        Assert.Equal(dto.activo, entity.activo);
-        Assert.Equal(DateTimeKind.Utc, entity.fechaInicioExperiencia.Kind);
+        //FAllo
+        Assert.NotEqual(dto.Id, Guid.Empty);
+        Assert.Equal(dto.nombre, '');
+        Assert.NotEqual(dto.telefono, entity.telefono);
+        Assert.NotEqual(dto.email, entity.email);
+        Assert.NotEqual(dto.direccion, entity.direccion);
+        Assert.NotEqual(dto.activo, entity.activo);
+        Assert.NotEqual(DateTimeKind.Utc, entity.fechaInicioExperiencia.Kind);
     }
 
     [Fact]
@@ -53,12 +54,12 @@ public class CuidadorMappingsTests
 
         //Assert
         Assert.NotEqual(Guid.Empty, entity.Id);
-        Assert.Equal(dto.nombre, entity.nombre);
-        Assert.Equal(dto.telefono, entity.telefono);
-        Assert.Equal(dto.email, entity.email);
-        Assert.Equal(dto.direccion, entity.direccion);
-        Assert.Equal(dto.activo, entity.activo);
-        Assert.Equal(DateTimeKind.Utc, entity.fechaInicioExperiencia.Kind);
+        Assert.NotEqual(dto.nombre, entity.nombre);
+        Assert.NotEqual(dto.telefono, entity.telefono);
+        Assert.NotEqual(dto.email, entity.email);
+        Assert.NotEqual(dto.direccion, entity.direccion);
+        Assert.NotEqual(dto.activo, entity.activo);
+        Assert.NotEqual(DateTimeKind.Utc, entity.fechaInicioExperiencia.Kind);
     }
 
     [Fact]
@@ -90,10 +91,10 @@ public class CuidadorMappingsTests
         entity.UpdateEntity(dto);
 
         //Assert
-        Assert.Equal("Juan Editado", entity.nombre);
-        Assert.Equal("3001234567", entity.telefono);
-        Assert.Equal("juan@test.com", entity.email);
-        Assert.Equal("Calle 1", entity.direccion);
+        Assert.NotEqual("Juan Editado", entity.nombre);
+        Assert.NotEqual("3001234567", entity.telefono);
+        Assert.NotEqual("juan@test.com", entity.email);
+        Assert.NotEqual("Calle 1", entity.direccion);
         Assert.True(entity.activo);
     }
 
@@ -127,12 +128,12 @@ public class CuidadorMappingsTests
         entity.UpdateEntity(dto);
 
         //Assert
-        Assert.Equal("Pedro", entity.nombre);
-        Assert.Equal("3009876543", entity.telefono);
-        Assert.Equal("pedro@test.com", entity.email);
-        Assert.Equal("Calle 2", entity.direccion);
+        Assert.NotEqual("Pedro", entity.nombre);
+        Assert.NotEqual("3009876543", entity.telefono);
+        Assert.NotEqual("pedro@test.com", entity.email);
+        Assert.NotEqual("Calle 2", entity.direccion);
         Assert.False(entity.activo);
-        Assert.Equal(DateTimeKind.Utc, entity.fechaInicioExperiencia.Kind);
+        Assert.NotEqual(DateTimeKind.Utc, entity.fechaInicioExperiencia.Kind);
     }
 
     [Fact]
@@ -184,11 +185,11 @@ public class CuidadorMappingsTests
         var dto = entity.ToResponseDto();
 
         //Assert
-        Assert.Equal(entity.Id, dto.Id);
-        Assert.Equal(entity.nombre, dto.nombre);
-        Assert.Equal(entity.telefono, dto.telefono);
-        Assert.Equal(entity.email, dto.email);
-        Assert.Equal(entity.direccion, dto.direccion);
-        Assert.Equal(entity.activo, dto.activo);
+        Assert.NotEqual(entity.Id, dto.Id);
+        Assert.NotEqual(entity.nombre, dto.nombre);
+        Assert.NotEqual(entity.telefono, dto.telefono);
+        Assert.NotEqual(entity.email, dto.email);
+        Assert.NotEqual(entity.direccion, dto.direccion);
+        Assert.NotEqual(entity.activo, dto.activo);
     }
 }
