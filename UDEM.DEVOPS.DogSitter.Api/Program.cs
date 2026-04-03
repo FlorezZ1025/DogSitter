@@ -1,9 +1,10 @@
+using Asp.Versioning;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Prometheus;
 using System.Reflection;
 using UDEM.DEVOPS.DogSitter.Api.ApiHandlers;
@@ -33,6 +34,20 @@ builder.Services.AddHealthChecks()
 builder.Services.AddDomainServices();
 
 builder.Services.AddEndpointsApiExplorer();
+builder.Services
+    .AddApiVersioning(options =>
+    {
+        options.DefaultApiVersion = new ApiVersion(1, 0);
+        options.AssumeDefaultVersionWhenUnspecified = true;
+        options.ReportApiVersions = true;
+        options.ApiVersionReader = new UrlSegmentApiVersionReader();
+    })
+    .AddApiExplorer(options =>
+    {
+        options.GroupNameFormat = "'v'V";
+        options.SubstituteApiVersionInUrl = true;
+    });
+
 builder.Services.AddSwaggerGen(options => {
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -44,20 +59,6 @@ builder.Services.AddSwaggerGen(options => {
         Scheme = "bearer"
     });
     
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type=ReferenceType.SecurityScheme,
-                    Id="Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }   
-    });
 });
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.Load("UDEM.DEVOPS.DogSitter.Application")));
@@ -97,9 +98,18 @@ app.UseRouting().UseEndpoints(endpoint =>
 });
 
 //app.MapGroup("/api/voter").MapVoter().AddEndpointFilterFactory(ValidationFilter.ValidationFilterFactory);
-app.MapGroup("").MapCuidador();
-app.MapGroup("").MapRaza();
-app.MapGroup("").MapPerro();
+var versionSet = app.NewApiVersionSet()
+    .HasApiVersion(new ApiVersion(1, 0))
+    .ReportApiVersions()
+    .Build();
+
+var v1 = app.MapGroup("/api/v{version:apiVersion}")
+    .WithApiVersionSet(versionSet)
+    .HasApiVersion(new ApiVersion(1, 0));
+
+v1.MapCuidador();
+v1.MapRaza();
+v1.MapPerro();
 await app.RunAsync();
 
 public partial class Program

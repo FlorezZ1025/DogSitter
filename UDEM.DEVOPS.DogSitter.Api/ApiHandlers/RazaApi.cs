@@ -9,7 +9,7 @@ namespace UDEM.DEVOPS.DogSitter.Api.ApiHandlers
     {
         public static RouteGroupBuilder MapRaza(this IEndpointRouteBuilder routeHandler)
         {
-            var group = routeHandler.MapGroup("/api/raza").WithTags("Raza");
+            var group = routeHandler.MapGroup("/raza").WithTags("Raza");
 
             group.MapGet("/", async (IMediator mediator) =>
             {
