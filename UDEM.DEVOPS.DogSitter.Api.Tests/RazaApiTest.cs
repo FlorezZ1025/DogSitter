@@ -8,6 +8,7 @@ namespace UDEM.DEVOPS.DogSitter.Api.Tests;
 public class RazaApiTest
 {
     private readonly HttpClient _client;
+    private const string BasePath = "/api/v1/raza";
 
     public RazaApiTest(DogSitterApiApp app)
     {
@@ -25,7 +26,7 @@ public class RazaApiTest
     private async Task<RazaDto> CreateRazaViaApiAsync(string? nombre = null)
     {
         var dto = BuildCreateDto(nombre);
-        var response = await _client.PostAsJsonAsync("/api/raza", dto);
+        var response = await _client.PostAsJsonAsync(BasePath, dto);
         response.EnsureSuccessStatusCode();
         return (await response.Content.ReadFromJsonAsync<RazaDto>())!;
     }
@@ -37,7 +38,7 @@ public class RazaApiTest
         var dto = BuildCreateDto();
 
         //Act
-        var response = await _client.PostAsJsonAsync("/api/raza", dto);
+        var response = await _client.PostAsJsonAsync(BasePath, dto);
 
         //Assert
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
@@ -57,7 +58,7 @@ public class RazaApiTest
         var created = await CreateRazaViaApiAsync();
 
         //Act
-        var result = await _client.GetFromJsonAsync<RazaDto>($"/api/raza/{created.Id}");
+        var result = await _client.GetFromJsonAsync<RazaDto>($"{BasePath}/{created.Id}");
 
         //Assert
         Assert.NotNull(result);
@@ -72,7 +73,7 @@ public class RazaApiTest
         await CreateRazaViaApiAsync();
 
         //Act
-        var response = await _client.GetAsync("/api/raza");
+        var response = await _client.GetAsync(BasePath);
 
         //Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -96,7 +97,7 @@ public class RazaApiTest
         };
 
         //Act
-        var response = await _client.PutAsJsonAsync("/api/raza", updateDto);
+        var response = await _client.PutAsJsonAsync(BasePath, updateDto);
 
         //Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -118,7 +119,7 @@ public class RazaApiTest
         };
 
         //Act
-        var response = await _client.PatchAsJsonAsync("/api/raza", patchDto);
+        var response = await _client.PatchAsJsonAsync(BasePath, patchDto);
 
         //Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -135,7 +136,7 @@ public class RazaApiTest
         var created = await CreateRazaViaApiAsync();
 
         //Act
-        var response = await _client.DeleteAsync($"/api/raza/{created.Id}");
+        var response = await _client.DeleteAsync($"{BasePath}/{created.Id}");
 
         //Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -150,7 +151,7 @@ public class RazaApiTest
         var dto = BuildCreateDto(nombre);
 
         //Act
-        var response = await _client.PostAsJsonAsync("/api/raza", dto);
+        var response = await _client.PostAsJsonAsync(BasePath, dto);
 
         //Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -162,7 +163,7 @@ public class RazaApiTest
     public async Task GetRazaById_WhenNotFound_ShouldReturn404()
     {
         //Act
-        var response = await _client.GetAsync($"/api/raza/{Guid.NewGuid()}");
+        var response = await _client.GetAsync($"{BasePath}/{Guid.NewGuid()}");
 
         //Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
