@@ -49,6 +49,16 @@ builder.Services
     });
 
 builder.Services.AddSwaggerGen(options => {
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "DogSitter API",
+        Version = "v1"
+    });
+    options.SwaggerDoc("v2", new OpenApiInfo
+    {
+        Title = "DogSitter API",
+        Version = "v2"
+    });
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
@@ -70,6 +80,7 @@ app.UseSwagger();
 app.UseSwaggerUI(options =>
 {
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "DogSitter API V1");
+    options.SwaggerEndpoint("/swagger/v2/swagger.json", "DogSitter API V2");
     options.RoutePrefix = string.Empty;
 });
 
@@ -100,6 +111,7 @@ app.UseRouting().UseEndpoints(endpoint =>
 //app.MapGroup("/api/voter").MapVoter().AddEndpointFilterFactory(ValidationFilter.ValidationFilterFactory);
 var versionSet = app.NewApiVersionSet()
     .HasApiVersion(new ApiVersion(1, 0))
+    .HasApiVersion(new ApiVersion(2,0))
     .ReportApiVersions()
     .Build();
 
@@ -110,6 +122,13 @@ var v1 = app.MapGroup("/api/v{version:apiVersion}")
 v1.MapCuidador();
 v1.MapRaza();
 v1.MapPerro();
+
+var v2 = app.MapGroup("/api/v{version:apiVersion}")
+    .WithApiVersionSet(versionSet)
+    .HasApiVersion(new ApiVersion(2,0));
+v2.MapCuidador();
+v2.MapRaza();
+v2.MapPerro();
 await app.RunAsync();
 
 public partial class Program
