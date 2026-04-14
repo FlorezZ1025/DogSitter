@@ -84,11 +84,6 @@ app.UseSwaggerUI(options =>
     options.RoutePrefix = string.Empty;
 });
 
-//// Solo redirigir HTTPS fuera de contenedores Docker
-//if (!app.Environment.IsEnvironment("Docker"))
-//{
-//    app.UseHttpsRedirection();
-//}
 app.UseHttpMetrics();
 
 app.UseMiddleware<AppExceptionHandlerMiddleware>();
@@ -129,6 +124,8 @@ var v2 = app.MapGroup("/api/v{version:apiVersion}")
 v2.MapCuidador();
 v2.MapRaza();
 v2.MapPerro();
+v2.MapMensaje();
+
 await app.RunAsync();
 
 public partial class Program
