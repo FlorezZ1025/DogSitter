@@ -41,10 +41,10 @@ jobs:
         echo "IMAGE=$ECR_REGISTRY/api-dogsitter:$IMAGE_TAG" >> $GITHUB_ENV
 
     - name: Configurar kubectl
-      uses: aws-actions/eks-update-kubeconfig@v1
-      with:
-        cluster-name: api-dogsitter-eks
-        region: us-east-2
+  uses: aws-actions/amazon-eks-update-kubeconfig@v2
+  with:
+    name: api-dogsitter-eks
+    region: us-east-2
 
     - name: Desplegar en EKS
       run: |
