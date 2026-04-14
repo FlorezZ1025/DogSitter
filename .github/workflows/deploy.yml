@@ -44,7 +44,7 @@ jobs:
       uses: aws-actions/eks-update-kubeconfig@v1
       with:
         cluster-name: api-dogsitter-eks
-        region: us-east-2us-east-2
+        region: us-east-2
 
     - name: Desplegar en EKS
       run: |
