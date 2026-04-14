@@ -37,6 +37,7 @@ jobs:
       
       run: |
         docker build -t $ECR_REGISTRY/api-dogsitter:latest .
+        docker tag api-dogsitter:latest $ECR_REGISTRY/api-dogsitter:latest
         docker push $ECR_REGISTRY/api-dogsitter:latest
         echo "IMAGE=$ECR_REGISTRY/api-dogsitter:latest" >> $GITHUB_ENV
      
