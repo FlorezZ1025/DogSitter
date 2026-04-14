@@ -28,16 +28,16 @@ public class PerroMappingsTests
         var entity = dto.ToEntity();
 
         //Assert
-        Assert.NotEqual(dto.Id, entity.Id);
-        Assert.NotEqual(dto.nombre, entity.nombre);
-        Assert.NotEqual(dto.edad, entity.edad);
-        Assert.NotEqual(dto.peso, entity.peso);
-        Assert.NotEqual(dto.razaId, entity.razaId);
-        Assert.NotEqual(dto.cuidadorId, entity.cuidadorId);
-        Assert.NotEqual(dto.tipoComida, entity.tipoComida);
-        Assert.NotEqual(dto.horarioComida, entity.horarioComida);
-        Assert.NotEqual(dto.alergias, entity.alergias);
-        Assert.NotEqual(dto.observaciones, entity.observaciones);
+        Assert.Equal(dto.Id, entity.Id);
+        Assert.Equal(dto.nombre, entity.nombre);
+        Assert.Equal(dto.edad, entity.edad);
+        Assert.Equal(dto.peso, entity.peso);
+        Assert.Equal(dto.razaId, entity.razaId);
+        Assert.Equal(dto.cuidadorId, entity.cuidadorId);
+        Assert.Equal(dto.tipoComida, entity.tipoComida);
+        Assert.Equal(dto.horarioComida, entity.horarioComida);
+        Assert.Equal(dto.alergias, entity.alergias);
+        Assert.Equal(dto.observaciones, entity.observaciones);
     }
 
     [Fact]
@@ -62,15 +62,15 @@ public class PerroMappingsTests
 
         //Assert
         Assert.NotEqual(Guid.Empty, entity.Id);
-        Assert.NotEqual(dto.nombre, entity.nombre);
-        Assert.NotEqual(dto.edad, entity.edad);
-        Assert.NotEqual(dto.peso, entity.peso);
-        Assert.NotEqual(dto.razaId, entity.razaId);
-        Assert.NotEqual(dto.cuidadorId, entity.cuidadorId);
-        Assert.NotEqual(dto.tipoComida, entity.tipoComida);
-        Assert.NotEqual(dto.horarioComida, entity.horarioComida);
-        Assert.NotEqual(dto.alergias, entity.alergias);
-        Assert.NotEqual(dto.observaciones, entity.observaciones);
+        Assert.Equal(dto.nombre, entity.nombre);
+        Assert.Equal(dto.edad, entity.edad);
+        Assert.Equal(dto.peso, entity.peso);
+        Assert.Equal(dto.razaId, entity.razaId);
+        Assert.Equal(dto.cuidadorId, entity.cuidadorId);
+        Assert.Equal(dto.tipoComida, entity.tipoComida);
+        Assert.Equal(dto.horarioComida, entity.horarioComida);
+        Assert.Equal(dto.alergias, entity.alergias);
+        Assert.Equal(dto.observaciones, entity.observaciones);
     }
 
     [Fact]
@@ -110,15 +110,15 @@ public class PerroMappingsTests
         entity.UpdateEntity(dto);
 
         //Assert
-        Assert.NotEqual("Max", entity.nombre);
-        Assert.NotEqual(3, entity.edad);
-        Assert.NotEqual(25, entity.peso);
-        Assert.NotEqual(raza.Id, entity.razaId);
-        Assert.NotEqual(cuidador.Id, entity.cuidadorId);
-        Assert.NotEqual("Seca", entity.tipoComida);
-        Assert.NotEqual("8AM", entity.horarioComida);
-        Assert.NotEqual("Pollo", entity.alergias);
-        Assert.NotEqual("Juguetón", entity.observaciones);
+        Assert.Equal("Max", entity.nombre);
+        Assert.Equal(3, entity.edad);
+        Assert.Equal(25, entity.peso);
+        Assert.Equal(raza.Id, entity.razaId);
+        Assert.Equal(cuidador.Id, entity.cuidadorId);
+        Assert.Equal("Seca", entity.tipoComida);
+        Assert.Equal("8AM", entity.horarioComida);
+        Assert.Equal("Pollo", entity.alergias);
+        Assert.Equal("Juguetón", entity.observaciones);
     }
 
     [Fact]

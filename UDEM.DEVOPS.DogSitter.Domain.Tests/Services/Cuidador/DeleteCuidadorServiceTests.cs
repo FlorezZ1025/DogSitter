@@ -61,8 +61,7 @@ public class DeleteCuidadorServiceTests
             async () => await _service.DeleteCuidadorAsync(id));
 
         //Assert
-        //Fallo
-        Assert.Equal("No se puede eliminar el cuidador porque tiene perros asociadoxxxxxxxx", exception.Message);
+        Assert.Equal("No se puede eliminar el cuidador porque tiene perros asociados", exception.Message);
         await _repository.Received(0).DeleteCuidadorAsync(Arg.Any<Guid>());
     }
 
@@ -83,11 +82,6 @@ public class DeleteCuidadorServiceTests
             perros = new List<Entities.Perro>()
         };
         _repository.GetCuidadorAsync(id).Returns(cuidador);
-        
-        
-        //Fallo
-        _repository.DeleteCuidadorAsync(id).Returns(false);
-
         //Act
         await _service.DeleteCuidadorAsync(id);
 
@@ -116,8 +110,7 @@ public class DeleteCuidadorServiceTests
         var result = await _service.CheckIfCuidadorExists(id);
 
         //Assert
-        //Fallo
-        Assert.NotEqual(cuidador, result);
+        Assert.Equal(cuidador, result);
     }
 
     [Fact]

@@ -78,10 +78,10 @@ public class RazaMappingsTests
         entity.UpdateEntity(dto);
 
         //Assert
-        Assert.NotEqual("Labrador Retriever", entity.nombre);
-        Assert.NotEqual("Grande", entity.corpulencia);
-        Assert.NotEqual("Alta", entity.nivelEnergia);
-        Assert.NotEqual("Perro amigable", entity.observacionesGenerales);
+        Assert.Equal("Labrador Retriever", entity.nombre);
+        Assert.Equal("Grande", entity.corpulencia);
+        Assert.Equal("Alta", entity.nivelEnergia);
+        Assert.Equal("Perro amigable", entity.observacionesGenerales);
     }
 
     [Fact]
@@ -109,10 +109,10 @@ public class RazaMappingsTests
         entity.UpdateEntity(dto);
 
         //Assert
-        Assert.NotEqual("Pastor Aleman", entity.nombre);
-        Assert.NotEqual("Mediana", entity.corpulencia);
-        Assert.NotEqual("Media", entity.nivelEnergia);
-        Assert.NotEqual("Perro guardian", entity.observacionesGenerales);
+        Assert.Equal("Pastor Aleman", entity.nombre);
+        Assert.Equal("Mediana", entity.corpulencia);
+        Assert.Equal("Media", entity.nivelEnergia);
+        Assert.Equal("Perro guardian", entity.observacionesGenerales);
     }
 
     [Fact]
@@ -159,11 +159,11 @@ public class RazaMappingsTests
         var dto = entity.ToResponseDto();
 
         //Assert
-        Assert.NotEqual(entity.Id, dto.Id);
-        Assert.NotEqual(entity.nombre, dto.nombre);
-        Assert.NotEqual(entity.corpulencia, dto.corpulencia);
-        Assert.NotEqual(entity.nivelEnergia, dto.nivelEnergia);
-        Assert.NotEqual(entity.observacionesGenerales, dto.observacionesGenerales);
+        Assert.Equal(entity.Id, dto.Id);
+        Assert.Equal(entity.nombre, dto.nombre);
+        Assert.Equal(entity.corpulencia, dto.corpulencia);
+        Assert.Equal(entity.nivelEnergia, dto.nivelEnergia);
+        Assert.Equal(entity.observacionesGenerales, dto.observacionesGenerales);
     }
 
     [Fact]
@@ -182,6 +182,6 @@ public class RazaMappingsTests
         var entity = dto.ToEntity();
 
         //Assert
-        Assert.NotNull(entity.observacionesGenerales);
+        Assert.Null(entity.observacionesGenerales);
     }
 }
