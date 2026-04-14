@@ -42,9 +42,13 @@ jobs:
         echo "IMAGE=$ECR_REGISTRY/api-dogsitter:$IMAGE_TAG" >> $GITHUB_ENV
      
     - name: Desplegar en EKS
+      env:
+        DB_CONNECTION_STRING: ${{ secrets.CONNECTION_STRING }}
       run: |
         aws eks update-kubeconfig --region us-east-2 --name api-dogsitter-eks
         kubectl set image deployment/api-dogsitter api-dogsitter=$IMAGE
+
+        kubectl set env deployment/api-dogsitter ConnectionStrings__db="$DB_CONNECTION_STRING"
         
         kubectl rollout restart deployment/api-dogsitter
     

@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: api-dogsitter
-        image: 533267353226.dkr.ecr.us-east-2.amazonaws.com/api-dogsitter:latest
+        image: 533267353226.dkr.ecr.us-east-2.amazonaws.com/api-dogsitter:TAG
         ports:
         - containerPort: 8080
         env:
