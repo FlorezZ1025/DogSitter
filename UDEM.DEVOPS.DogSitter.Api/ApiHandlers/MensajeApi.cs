@@ -11,6 +11,10 @@ public static class MensajeApi
 			return Results.Ok($"Aquí me conectaré con las APIs de mis compañeros");
 		}).Produces(StatusCodes.Status200OK, typeof(string));
 
+		group.MapGet("/", async () =>
+		{
+			return Results.Ok($"Aquí me conectaré con las APIs de mis compañeros");
+		}).Produces(StatusCodes.Status200OK, typeof(string));
 		return group;
 	}
 }
