@@ -1,4 +1,4 @@
-name: Deploy to EKS
+name: Deploy to EKS - PRB
 
 on:
   workflow_run:
