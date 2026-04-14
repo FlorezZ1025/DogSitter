@@ -18,14 +18,14 @@ var config = builder.Configuration;
 
 builder.Services.AddHttpClient();
 builder.Services.AddHttpContextAccessor();
-builder.Logging.ClearProviders();
+//builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>(ServiceLifetime.Singleton);
 
 builder.Services.AddDbContext<DataContext>(opts =>
 {
-    opts.UseNpgsql(Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") ?? config.GetConnectionString("db"));
+    opts.UseNpgsql(config.GetConnectionString("db"));
 });
 
 builder.Services.AddHealthChecks()
@@ -37,7 +37,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services
     .AddApiVersioning(options =>
     {
-        options.DefaultApiVersion = new ApiVersion(1, 0);
+        options.DefaultApiVersion = new ApiVersion(2, 0);
         options.AssumeDefaultVersionWhenUnspecified = true;
         options.ReportApiVersions = true;
         options.ApiVersionReader = new UrlSegmentApiVersionReader();
@@ -79,8 +79,8 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI(options =>
 {
-    options.SwaggerEndpoint("/swagger/v1/swagger.json", "DogSitter API V1");
     options.SwaggerEndpoint("/swagger/v2/swagger.json", "DogSitter API V2");
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "DogSitter API V1");
     options.RoutePrefix = string.Empty;
 });
 
