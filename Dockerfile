@@ -1,9 +1,8 @@
 # Esta fase se usa cuando se ejecuta desde VS en modo rápido (valor predeterminado para la configuración de depuración)
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-USER $APP_UID
+USER app
 WORKDIR /app
 EXPOSE 8080
-EXPOSE 8081
 ENV ASPNETCORE_URLS=http://+:8080
 
 # Esta fase se usa para compilar el proyecto de servicio

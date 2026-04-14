@@ -8,6 +8,9 @@ namespace UDEM.DEVOPS.DogSitter.Api.Tests;
 public class PerroApiTest
 {
     private readonly HttpClient _client;
+    private const string PerroBasePath = "/api/v1/perro";
+    private const string CuidadorBasePath = "/api/v1/cuidador";
+    private const string RazaBasePath = "/api/v1/raza";
 
     public PerroApiTest(DogSitterApiApp app)
     {
@@ -25,7 +28,7 @@ public class PerroApiTest
             direccion = "Calle Test #1-2",
             activo = true
         };
-        var response = await _client.PostAsJsonAsync("/api/cuidador", dto);
+        var response = await _client.PostAsJsonAsync(CuidadorBasePath, dto);
         response.EnsureSuccessStatusCode();
         return (await response.Content.ReadFromJsonAsync<CuidadorDto>())!;
     }
@@ -39,7 +42,7 @@ public class PerroApiTest
             nivelEnergia = "Alta",
             observacionesGenerales = "Raza de prueba"
         };
-        var response = await _client.PostAsJsonAsync("/api/raza", dto);
+        var response = await _client.PostAsJsonAsync(RazaBasePath, dto);
         response.EnsureSuccessStatusCode();
         return (await response.Content.ReadFromJsonAsync<RazaDto>())!;
     }
@@ -68,7 +71,7 @@ public class PerroApiTest
     {
         var (raza, cuidador) = await CreateDependenciesAsync();
         var dto = BuildCreateDto(raza.Id, cuidador.Id);
-        var response = await _client.PostAsJsonAsync("/api/perro", dto);
+        var response = await _client.PostAsJsonAsync(PerroBasePath, dto);
         response.EnsureSuccessStatusCode();
         return (await response.Content.ReadFromJsonAsync<PerroDto>())!;
     }
@@ -81,7 +84,7 @@ public class PerroApiTest
         var dto = BuildCreateDto(raza.Id, cuidador.Id);
 
         //Act
-        var response = await _client.PostAsJsonAsync("/api/perro", dto);
+        var response = await _client.PostAsJsonAsync(PerroBasePath, dto);
 
         //Assert
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
@@ -104,7 +107,7 @@ public class PerroApiTest
         var created = await CreatePerroViaApiAsync();
 
         //Act
-        var result = await _client.GetFromJsonAsync<PerroDto>($"/api/perro/{created.Id}");
+        var result = await _client.GetFromJsonAsync<PerroDto>($"{PerroBasePath}/{created.Id}");
 
         //Assert
         Assert.NotNull(result);
@@ -121,7 +124,7 @@ public class PerroApiTest
         await CreatePerroViaApiAsync();
 
         //Act
-        var response = await _client.GetAsync("/api/perro");
+        var response = await _client.GetAsync(PerroBasePath);
 
         //Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -146,7 +149,7 @@ public class PerroApiTest
         };
 
         //Act
-        var response = await _client.PutAsJsonAsync("/api/perro", updateDto);
+        var response = await _client.PutAsJsonAsync(PerroBasePath, updateDto);
 
         //Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -168,7 +171,7 @@ public class PerroApiTest
         };
 
         //Act
-        var response = await _client.PatchAsJsonAsync("/api/perro", patchDto);
+        var response = await _client.PatchAsJsonAsync(PerroBasePath, patchDto);
 
         //Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -185,7 +188,7 @@ public class PerroApiTest
         var created = await CreatePerroViaApiAsync();
 
         //Act
-        var response = await _client.DeleteAsync($"/api/perro/{created.Id}");
+        var response = await _client.DeleteAsync($"{PerroBasePath}/{created.Id}");
 
         //Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -199,7 +202,7 @@ public class PerroApiTest
         var dto = BuildCreateDto(Guid.NewGuid(), cuidador.Id);
 
         //Act
-        var response = await _client.PostAsJsonAsync("/api/perro", dto);
+        var response = await _client.PostAsJsonAsync(PerroBasePath, dto);
 
         //Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -213,7 +216,7 @@ public class PerroApiTest
         var dto = BuildCreateDto(raza.Id, Guid.NewGuid());
 
         //Act
-        var response = await _client.PostAsJsonAsync("/api/perro", dto);
+        var response = await _client.PostAsJsonAsync(PerroBasePath, dto);
 
         //Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -223,7 +226,7 @@ public class PerroApiTest
     public async Task GetPerroById_WhenNotFound_ShouldReturn404()
     {
         //Act
-        var response = await _client.GetAsync($"/api/perro/{Guid.NewGuid()}");
+        var response = await _client.GetAsync($"{PerroBasePath}/{Guid.NewGuid()}");
 
         //Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);

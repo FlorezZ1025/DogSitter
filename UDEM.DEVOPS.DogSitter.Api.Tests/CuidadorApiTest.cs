@@ -8,6 +8,7 @@ namespace UDEM.DEVOPS.DogSitter.Api.Tests;
 public class CuidadorApiTest
 {
     private readonly HttpClient _client;
+    private const string BasePath = "/api/v1/cuidador";
 
     public CuidadorApiTest(DogSitterApiApp app)
     {
@@ -27,7 +28,7 @@ public class CuidadorApiTest
     private async Task<CuidadorDto> CreateCuidadorViaApiAsync(string? email = null)
     {
         var dto = BuildCreateDto(email);
-        var response = await _client.PostAsJsonAsync("/api/cuidador", dto);
+        var response = await _client.PostAsJsonAsync(BasePath, dto);
         response.EnsureSuccessStatusCode();
         return (await response.Content.ReadFromJsonAsync<CuidadorDto>())!;
     }
@@ -39,7 +40,7 @@ public class CuidadorApiTest
         var dto = BuildCreateDto();
 
         //Act
-        var response = await _client.PostAsJsonAsync("/api/cuidador", dto);
+        var response = await _client.PostAsJsonAsync(BasePath, dto);
 
         //Assert
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
@@ -60,7 +61,7 @@ public class CuidadorApiTest
         var created = await CreateCuidadorViaApiAsync();
 
         //Act
-        var result = await _client.GetFromJsonAsync<CuidadorDto>($"/api/cuidador/{created.Id}");
+        var result = await _client.GetFromJsonAsync<CuidadorDto>($"{BasePath}/{created.Id}");
 
         //Assert
         Assert.NotNull(result);
@@ -76,7 +77,7 @@ public class CuidadorApiTest
         await CreateCuidadorViaApiAsync();
 
         //Act
-        var response = await _client.GetAsync("/api/cuidador");
+        var response = await _client.GetAsync(BasePath);
 
         //Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -102,7 +103,7 @@ public class CuidadorApiTest
         };
 
         //Act
-        var response = await _client.PutAsJsonAsync("/api/cuidador", updateDto);
+        var response = await _client.PutAsJsonAsync(BasePath, updateDto);
 
         //Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -124,7 +125,7 @@ public class CuidadorApiTest
         };
 
         //Act
-        var response = await _client.PatchAsJsonAsync("/api/cuidador", patchDto);
+        var response = await _client.PatchAsJsonAsync(BasePath, patchDto);
 
         //Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -141,7 +142,7 @@ public class CuidadorApiTest
         var created = await CreateCuidadorViaApiAsync();
 
         //Act
-        var response = await _client.DeleteAsync($"/api/cuidador/{created.Id}");
+        var response = await _client.DeleteAsync($"{BasePath}/{created.Id}");
 
         //Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -156,7 +157,7 @@ public class CuidadorApiTest
         var dto = BuildCreateDto(email);
 
         //Act
-        var response = await _client.PostAsJsonAsync("/api/cuidador", dto);
+        var response = await _client.PostAsJsonAsync(BasePath, dto);
 
         //Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -168,7 +169,7 @@ public class CuidadorApiTest
     public async Task GetCuidadorById_WhenNotFound_ShouldReturn404()
     {
         //Act
-        var response = await _client.GetAsync($"/api/cuidador/{Guid.NewGuid()}");
+        var response = await _client.GetAsync($"{BasePath}/{Guid.NewGuid()}");
 
         //Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -178,7 +179,7 @@ public class CuidadorApiTest
     public async Task DeleteCuidador_WhenNotFound_ShouldReturn404()
     {
         //Act
-        var response = await _client.DeleteAsync($"/api/cuidador/{Guid.NewGuid()}");
+        var response = await _client.DeleteAsync($"{BasePath}/{Guid.NewGuid()}");
 
         //Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);

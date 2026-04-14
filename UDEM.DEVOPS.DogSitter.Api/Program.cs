@@ -1,9 +1,10 @@
+using Asp.Versioning;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Prometheus;
 using System.Reflection;
 using UDEM.DEVOPS.DogSitter.Api.ApiHandlers;
@@ -17,14 +18,14 @@ var config = builder.Configuration;
 
 builder.Services.AddHttpClient();
 builder.Services.AddHttpContextAccessor();
-builder.Logging.ClearProviders();
+//builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>(ServiceLifetime.Singleton);
 
 builder.Services.AddDbContext<DataContext>(opts =>
 {
-    opts.UseNpgsql(Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") ?? config.GetConnectionString("db"));
+    opts.UseNpgsql(config.GetConnectionString("db"));
 });
 
 builder.Services.AddHealthChecks()
@@ -33,7 +34,31 @@ builder.Services.AddHealthChecks()
 builder.Services.AddDomainServices();
 
 builder.Services.AddEndpointsApiExplorer();
+builder.Services
+    .AddApiVersioning(options =>
+    {
+        options.DefaultApiVersion = new ApiVersion(2, 0);
+        options.AssumeDefaultVersionWhenUnspecified = true;
+        options.ReportApiVersions = true;
+        options.ApiVersionReader = new UrlSegmentApiVersionReader();
+    })
+    .AddApiExplorer(options =>
+    {
+        options.GroupNameFormat = "'v'V";
+        options.SubstituteApiVersionInUrl = true;
+    });
+
 builder.Services.AddSwaggerGen(options => {
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "DogSitter API",
+        Version = "v1"
+    });
+    options.SwaggerDoc("v2", new OpenApiInfo
+    {
+        Title = "DogSitter API",
+        Version = "v2"
+    });
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
@@ -44,20 +69,6 @@ builder.Services.AddSwaggerGen(options => {
         Scheme = "bearer"
     });
     
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type=ReferenceType.SecurityScheme,
-                    Id="Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }   
-    });
 });
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.Load("UDEM.DEVOPS.DogSitter.Application")));
@@ -68,6 +79,7 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI(options =>
 {
+    options.SwaggerEndpoint("/swagger/v2/swagger.json", "DogSitter API V2");
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "DogSitter API V1");
     options.RoutePrefix = string.Empty;
 });
@@ -97,9 +109,26 @@ app.UseRouting().UseEndpoints(endpoint =>
 });
 
 //app.MapGroup("/api/voter").MapVoter().AddEndpointFilterFactory(ValidationFilter.ValidationFilterFactory);
-app.MapGroup("").MapCuidador();
-app.MapGroup("").MapRaza();
-app.MapGroup("").MapPerro();
+var versionSet = app.NewApiVersionSet()
+    .HasApiVersion(new ApiVersion(1, 0))
+    .HasApiVersion(new ApiVersion(2,0))
+    .ReportApiVersions()
+    .Build();
+
+var v1 = app.MapGroup("/api/v{version:apiVersion}")
+    .WithApiVersionSet(versionSet)
+    .HasApiVersion(new ApiVersion(1, 0));
+
+v1.MapCuidador();
+v1.MapRaza();
+v1.MapPerro();
+
+var v2 = app.MapGroup("/api/v{version:apiVersion}")
+    .WithApiVersionSet(versionSet)
+    .HasApiVersion(new ApiVersion(2,0));
+v2.MapCuidador();
+v2.MapRaza();
+v2.MapPerro();
 await app.RunAsync();
 
 public partial class Program
