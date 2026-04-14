@@ -16,6 +16,7 @@ public static class AutoLoadServices
         services.AddTransient(typeof(IRepository<>), typeof(GenericRepository<>));
         // unit of work
         services.AddTransient<IUnitOfWork, UnitOfWork>();
+        services.AddTransient<IMessageService, MessageService>();
 
         // all services with domain service attribute, we can also do this "by convention",
         // naming services with suffix "Service" if decide to remove the domain service decorator
