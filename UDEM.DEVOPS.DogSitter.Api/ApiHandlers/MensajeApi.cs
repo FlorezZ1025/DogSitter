@@ -11,7 +11,7 @@ public static class MensajeApi
 
 		group.MapPost("/", async () =>
 		{
-			return Results.Ok($"Aquí me conectaré con las APIs de mis compañero, eres una máquina");
+			return Results.Ok($"Aquí me conectaré con las APIs de mis compañero, eres una doble máquina");
 		}).Produces(StatusCodes.Status200OK, typeof(string));
 
 		group.MapGet("/", async (IMediator mediator) =>
