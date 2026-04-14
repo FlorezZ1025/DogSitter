@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,8 @@ namespace UDEM.DEVOPS.DogSitter.Application.Mensaje.Commands
 {
     public class SendMensajeToYecidCommandHandler(
         IMessageService messageService,
-        ICuidadorRepository cuidadorRepository)
+        ICuidadorRepository cuidadorRepository,
+        ILogger<SendMensajeToYecidCommandHandler> logger)
         : IRequestHandler<SendMensajeToYecidCommand, JsonNode>
     {
         public async Task<JsonNode> Handle(SendMensajeToYecidCommand request, CancellationToken cancellationToken)
@@ -22,6 +24,7 @@ namespace UDEM.DEVOPS.DogSitter.Application.Mensaje.Commands
             var cualquierCuidador = await cuidadorRepository.GetAllCuidadoresAsync();
             var cuidador = cualquierCuidador.FirstOrDefault() ?? throw new NotFoundEntityException("No se encontró ningún cuidador.");
             var dto = cuidador.ToResponseDto();
+            logger.LogInformation("Enviando mensaje a Yecid con los datos del cuidador: {@Nombre}", dto.nombre);
             var respuestaMensaje = await messageService.EnviarMensaje(dto);
 
             return respuestaMensaje;
