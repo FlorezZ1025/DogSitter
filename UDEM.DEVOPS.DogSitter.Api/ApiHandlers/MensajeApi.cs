@@ -6,11 +6,15 @@ public static class MensajeApi
 	{
 		var group = routeHandler.MapGroup("/mensaje").WithTags("Mensaje");
 
-		group.MapPost("/", async (string mensaje) =>
+		group.MapPost("/", async () =>
 		{
-			return Results.Ok($"Mensaje recibido: {mensaje}");
+			return Results.Ok($"Aquí me conectaré con las APIs de mis compañeros");
 		}).Produces(StatusCodes.Status200OK, typeof(string));
 
+		group.MapGet("/", async () =>
+		{
+			return Results.Ok($"Aquí me conectaré con las APIs de mis compañeros");
+		}).Produces(StatusCodes.Status200OK, typeof(string));
 		return group;
 	}
 }

@@ -43,4 +43,7 @@ jobs:
     - name: Desplegar en EKS
       run: |
         aws eks update-kubeconfig --region us-east-2 --name api-dogsitter-eks
-        kubectl set image deployment/api-dogsitter api-dogsitter=$IMAGE --record 
+        kubectl set image deployment/api-dogsitter api-dogsitter=$IMAGE
+        kubectl rollout status deployment/api-dogsitter
+        kubectl get deployment api-dogsitter -n $NAMESPACE -o=jsonpath='{.spec.template.spec.containers[0].image}'
+        echo
