@@ -17,6 +17,3 @@ spec:
         image: 533267353226.dkr.ecr.us-east-2.amazonaws.com/api-dogsitter:TAG
         ports:
         - containerPort: 8080
-        env:
-        - name: ConnectionStrings__db
-          value: "Host=api-dogsitter-db.cpmeaeuyijk2.us-east-2.rds.amazonaws.com;Port=5432;Database=dogsitter;Username=postgres;Password=BRVj8gE7PvYPnX5;SSL Mode=Require;Trust Server Certificate=true"
