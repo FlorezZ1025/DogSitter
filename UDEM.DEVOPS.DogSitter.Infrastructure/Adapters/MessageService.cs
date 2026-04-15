@@ -27,7 +27,7 @@ namespace UDEM.DEVOPS.DogSitter.Infrastructure.Adapters
             var jsonPayload = JsonSerializer.Serialize(payload);
             var request = new HttpRequestMessage(HttpMethod.Post, url)
             {
-                Content = new StringContent(jsonPayload, Encoding.UTF8, "application/json")
+                Content = new StringContent(jsonPayload , Encoding.UTF8, "application/json")
             };
 
             logger.LogInformation("Enviando mensaje a la API de Yecid para el cuidador: {Nombre}", cuidador.nombre);
