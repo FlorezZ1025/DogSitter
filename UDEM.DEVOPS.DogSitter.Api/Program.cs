@@ -5,74 +5,16 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi;
-using OpenTelemetry.Metrics;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
 using Prometheus;
-using Serilog;
-using Serilog.Sinks.Grafana.Loki;
 using System.Reflection;
 using UDEM.DEVOPS.DogSitter.Api.ApiHandlers;
 using UDEM.DEVOPS.DogSitter.Api.Filters;
-using OpenTelemetry.Resources;
 using UDEM.DEVOPS.DogSitter.Api.Middleware; 
 using UDEM.DEVOPS.DogSitter.Infrastructure.DataSource;
 using UDEM.DEVOPS.DogSitter.Infrastructure.Extensions;
 
-using OpenTelemetry.Trace;
-using OpenTelemetry.Metrics;
-using Serilog;
-using Serilog.Sinks.Grafana.Loki;
-
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
-
-
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .WriteTo.GrafanaLoki(
-        config["Grafana:LokiEndpoint"] ?? Environment.GetEnvironmentVariable("GRAFANA_LOKI_ENDPOINT") ?? "",
-        credentials: new LokiCredentials
-        {
-            Login = config["Grafana:InstanceId"] ?? Environment.GetEnvironmentVariable("GRAFANA_INSTANCE_ID") ?? "",
-            Password = config["Grafana:ApiToken"] ?? Environment.GetEnvironmentVariable("GRAFANA_API_TOKEN") ?? ""
-        },
-        labels: new[]
-        {
-            new LokiLabel { Key = "app", Value = "api-dogsitter" },
-            new LokiLabel { Key = "env", Value = "production" }
-        })
-    .CreateLogger();
-
-builder.Host.UseSerilog();
-
-// Configurar OpenTelemetry para métricas y trazas
-builder.Services.AddOpenTelemetry()
-    .ConfigureResource(resource => resource
-        .AddService(config["Grafana:ServiceName"] ?? Environment.GetEnvironmentVariable("GRAFANA_SERVICE_NAME") ?? "api-dogsitter"))
-    .WithTracing(tracing => tracing
-        .AddAspNetCoreInstrumentation()
-        .AddHttpClientInstrumentation()
-        .AddOtlpExporter(otlp =>
-        {
-            otlp.Endpoint = new Uri(
-                config["Grafana:OtlpEndpoint"] ?? Environment.GetEnvironmentVariable("GRAFANA_OTLP_ENDPOINT") ?? "");
-            otlp.Headers = $"Authorization=Basic {Convert.ToBase64String(
-                System.Text.Encoding.UTF8.GetBytes(
-                    $"{config["Grafana:InstanceId"] ?? Environment.GetEnvironmentVariable("GRAFANA_INSTANCE_ID") ?? ""}:{config["Grafana:ApiToken"] ?? Environment.GetEnvironmentVariable("GRAFANA_API_TOKEN") ?? ""}"))}";
-        }))
-    .WithMetrics(metrics => metrics
-        .AddAspNetCoreInstrumentation()
-        .AddHttpClientInstrumentation()
-        .AddOtlpExporter(otlp =>
-        {
-            otlp.Endpoint = new Uri(
-                config["Grafana:OtlpEndpoint"] ?? Environment.GetEnvironmentVariable("GRAFANA_OTLP_ENDPOINT") ?? "");
-            otlp.Headers = $"Authorization=Basic {Convert.ToBase64String(
-                System.Text.Encoding.UTF8.GetBytes(
-                    $"{config["Grafana:InstanceId"] ?? Environment.GetEnvironmentVariable("GRAFANA_INSTANCE_ID") ?? ""}:{config["Grafana:ApiToken"] ?? Environment.GetEnvironmentVariable("GRAFANA_API_TOKEN") ?? ""}"))}";
-        }));
-
 
 builder.Services.AddHttpClient();
 builder.Services.AddHttpContextAccessor();
