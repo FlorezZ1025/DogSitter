@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using MediatR;
+using UDEM.DEVOPS.DogSitter.Application.Mensaje.Commands;
 using UDEM.DEVOPS.DogSitter.Application.Mensaje.Queries;
 namespace UDEM.DEVOPS.DogSitter.Api.ApiHandlers;
 
@@ -9,9 +10,10 @@ public static class MensajeApi
 	{
 		var group = routeHandler.MapGroup("/mensaje").WithTags("Mensaje");
 
-		group.MapPost("/", async () =>
+		group.MapPost("/", async (IMediator mediator) =>
 		{
-			return Results.Ok($"Aquí me conectaré con las APIs de mis compañero, eres una doble máquina");
+			var result = await mediator.Send(new SendMensajeToYecidCommand());
+            return Results.Ok(result);
 		}).Produces(StatusCodes.Status200OK, typeof(string));
 
 		group.MapGet("/", async (IMediator mediator) =>
