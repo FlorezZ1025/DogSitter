@@ -26,7 +26,7 @@ namespace UDEM.DEVOPS.DogSitter.Application.Mensaje.Commands
             var dto = cuidador.ToResponseDto();
             logger.LogInformation("Enviando mensaje a Yecid con los datos del cuidador: {@Nombre}", dto.nombre);
             var respuestaMensaje = await messageService.EnviarMensaje(dto);
-
+            logger.LogInformation("Mensaje enviado a Yecid con respuesta: {@Respuesta}", respuestaMensaje);
             return respuestaMensaje;
         }
     }
