@@ -13,19 +13,19 @@ spec:
         app: api-dogsitter
     spec:
       containers:
-      - name: api-dogsitter
-        image: 533267353226.dkr.ecr.us-east-2.amazonaws.com/api-dogsitter:latest
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 8080
-    env:
-    - name: Grafana__InstanceId
-    valueFrom:
-      secretKeyRef:
-        name: grafana-credentials
-        key: GRAFANA_INSTANCE_ID
-    - name: Grafana__ApiToken
-    valueFrom:
-      secretKeyRef:
-        name: grafana-credentials
-        key: GRAFANA_API_TOKEN
+        - name: api-dogsitter
+          image: 533267353226.dkr.ecr.us-east-2.amazonaws.com/api-dogsitter:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: Grafana__InstanceId
+              valueFrom:
+                secretKeyRef:
+                  name: grafana-credentials
+                  key: GRAFANA_INSTANCE_ID
+            - name: Grafana__ApiToken
+              valueFrom:
+                secretKeyRef:
+                  name: grafana-credentials
+                  key: GRAFANA_API_TOKEN
