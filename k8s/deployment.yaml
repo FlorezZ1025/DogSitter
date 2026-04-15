@@ -18,14 +18,3 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
-          env:
-            - name: Grafana__InstanceId
-              valueFrom:
-                secretKeyRef:
-                  name: grafana-credentials
-                  key: GRAFANA_INSTANCE_ID
-            - name: Grafana__ApiToken
-              valueFrom:
-                secretKeyRef:
-                  name: grafana-credentials
-                  key: GRAFANA_API_TOKEN

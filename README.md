@@ -18,6 +18,8 @@
 
 ## 📐 Arquitectura
 
+![Arquitectura Multicloud](img/Arquitectura_Multicloud.jpeg)
+
 Los principales patrones y estilos de arquitectura que guían este proyecto son:
 
 ### Puertos y Adaptadores (Hexagonal)

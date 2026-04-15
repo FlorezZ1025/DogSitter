@@ -7,8 +7,7 @@ on:
     branches:
       - develop
     types:
-      - completed
- 
+      - completed 
 
 jobs:
   deploy:
