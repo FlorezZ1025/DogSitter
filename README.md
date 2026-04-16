@@ -18,7 +18,7 @@
 
 ## 📐 Arquitectura
 
-![Arquitectura Multicloud](./img/Arquitectura_Multicloud.jpeg)
+![Arquitectura Multicloud](./Img/Arquitectura_Multicloud.jpeg)
 
 Los principales patrones y estilos de arquitectura que guían este proyecto son:
 
