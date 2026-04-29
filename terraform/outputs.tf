@@ -27,3 +27,6 @@ output "db_name" {
 output "container_app_url" {
   value = module.container_apps.app_url
 }
+output "jump_host_ip" {
+  value = module.jump_host.public_ip
+}

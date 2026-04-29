@@ -52,7 +52,19 @@ module "container_apps" {
   db_password         = var.pg_admin_password
 
   container_image = module.acr.login_server != "" ? var.container_image : var.container_image
-  acr_server      = module.acr.login_server      # 👈 nuevo
-  acr_username    = module.acr.admin_username     # 👈 nuevo
-  acr_password    = module.acr.admin_password     # 👈 nuevo
+  acr_server      = module.acr.login_server    
+  acr_username    = module.acr.admin_username  
+  acr_password    = module.acr.admin_password  
+}
+
+module "jump_host" {
+  source = "./modules/AzureJumpHost"
+
+  resource_group_name = azurerm_resource_group.main.name
+  location            = var.location
+  environment         = var.environment
+  project_name        = var.project_name
+  subnet_id           = module.vnet.jump_subnet_id
+  admin_username      = "azureuser"
+  allowed_ips         = var.allowed_ips
 }
