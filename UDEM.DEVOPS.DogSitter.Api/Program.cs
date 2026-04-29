@@ -126,6 +126,11 @@ v2.MapRaza();
 v2.MapPerro();
 v2.MapMensaje();
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+    db.Database.Migrate();
+}
 await app.RunAsync();
 
 public partial class Program
