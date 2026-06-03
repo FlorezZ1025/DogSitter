@@ -21,6 +21,12 @@ public static class MensajeApi
 			var result = await mediator.Send(new GetUsuariosFromYecidQuery());
 			return Results.Ok(result);
 		}).Produces(StatusCodes.Status200OK, typeof(JsonNode));
+
+		group.MapGet("/Diego", async (IMediator mediator) =>
+		{
+			return Results.Ok("Endpoint realizado por Diego Alejandro Murillo");
+		}).Produces(StatusCodes.Status200OK, typeof(JsonNode));
+		
 		return group;
 	}
 }
