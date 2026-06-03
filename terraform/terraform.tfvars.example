@@ -1,0 +1,24 @@
+# Copia este archivo como terraform.tfvars y rellena los valores sensibles
+# NUNCA subas terraform.tfvars al repositorio (está en .gitignore)
+
+project     = "dogsitter"
+environment = "dev"
+location    = "eastus"
+
+# VNet
+vnet_address_space = ["10.0.0.0/16"]
+aks_subnet_cidr    = "10.0.1.0/24"
+db_subnet_cidr     = "10.0.2.0/24"
+
+# ACR
+acr_sku = "Basic"
+
+# AKS
+kubernetes_version = "1.36.0"
+aks_node_count     = 2
+aks_node_vm_size   = "Standard_B2s"
+
+# Database — REEMPLAZA ESTOS VALORES
+db_admin_login    = "dogsitteradmin"
+db_admin_password = "Passwrod1234"
+db_sku_name       = "B_Standard_B1ms"

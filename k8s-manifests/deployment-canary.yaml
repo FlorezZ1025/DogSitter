@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dogsitter-canary
+  labels:
+    app: dogsitter
+    version: canary
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dogsitter
+      version: canary
+  template:
+    metadata:
+      labels:
+        app: dogsitter
+        version: canary
+    spec:
+      containers:
+        - name: dogsitter-api
+          image: acrdogsitterdev.azurecr.io/dogsitter-api:2.0.0-canary
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Production"
+            - name: ConnectionStrings__db
+              valueFrom:
+                secretKeyRef:
+                  name: dogsitter-db-secret
+                  key: connection-string
+            - name: ApiVersion__Release
+              value: "canary"
+            - name: ApiVersion__Version
+              value: "2.0.0"
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20
