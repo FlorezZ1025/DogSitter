@@ -309,10 +309,7 @@ export MSYS_NO_PATHCONV=1
 
 echo "🔥 Eliminando infraestructura de $ENVIRONMENT..."
 
-terraform destroy \
-  -var-file="environments/$ENVIRONMENT.tfvars" \
-  -lock=false \
-  -auto-approve
+terraform destroy -var-file="environments/$ENVIRONMENT.tfvars" -lock=false -auto-approve
 
 echo "✅ Infraestructura de $ENVIRONMENT eliminada exitosamente."
 ```

@@ -1,0 +1,29 @@
+output "resource_group_name" {
+  value = azurerm_resource_group.main.name
+}
+
+output "acr_login_server" {
+  value = module.acr.login_server
+}
+
+output "acr_admin_username" {
+  value     = module.acr.admin_username
+  sensitive = true
+}
+
+output "acr_admin_password" {
+  value     = module.acr.admin_password
+  sensitive = true
+}
+output "db_host" {
+  value     = module.database.db_host
+  sensitive = true
+}
+
+output "db_name" {
+  value = module.database.db_name
+}
+
+output "jump_host_ip" {
+  value = module.jump_host.public_ip
+}

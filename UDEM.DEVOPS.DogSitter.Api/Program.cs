@@ -12,6 +12,7 @@ using UDEM.DEVOPS.DogSitter.Api.Filters;
 using UDEM.DEVOPS.DogSitter.Api.Middleware; 
 using UDEM.DEVOPS.DogSitter.Infrastructure.DataSource;
 using UDEM.DEVOPS.DogSitter.Infrastructure.Extensions;
+using UDEM.DEVOPS.DogSitter.Infrastructure.Health;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
@@ -25,12 +26,14 @@ builder.Services.AddValidatorsFromAssemblyContaining<Program>(ServiceLifetime.Si
 
 builder.Services.AddDbContext<DataContext>(opts =>
 {
-    opts.UseNpgsql(config.GetConnectionString("db"));
+    opts.UseSqlServer(config.GetConnectionString("db"));
 });
 
 builder.Services.AddHealthChecks()
+    .AddCheck<VersionHealthCheck>("version_check", tags: new[] { "stable" })
     .AddDbContextCheck<DataContext>()
     .ForwardToPrometheus();
+
 builder.Services.AddDomainServices();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -73,6 +76,8 @@ builder.Services.AddSwaggerGen(options => {
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.Load("UDEM.DEVOPS.DogSitter.Application")));
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+VersionInfo.Release = config["ApiVersion:Release"] ?? "stable";
+VersionInfo.Version = config["ApiVersion:Version"] ?? "1.0.0";
 var app = builder.Build();
 
 
@@ -84,6 +89,7 @@ app.UseSwaggerUI(options =>
     options.RoutePrefix = string.Empty;
 });
 
+
 app.UseHttpMetrics();
 
 app.UseMiddleware<AppExceptionHandlerMiddleware>();
@@ -92,9 +98,27 @@ app.MapHealthChecks("/healthz", new HealthCheckOptions
 {
     ResultStatusCodes =
     {
-        [HealthStatus.Healthy] = StatusCodes.Status200OK,
-        [HealthStatus.Degraded] = StatusCodes.Status200OK,
+        [HealthStatus.Healthy]   = StatusCodes.Status200OK,
+        [HealthStatus.Degraded]  = StatusCodes.Status200OK,
         [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
+    },
+    ResponseWriter = async (context, report) =>
+    {
+        context.Response.ContentType = "application/json";
+        var result = new
+        {
+            status = report.Status.ToString(),
+            version = VersionInfo.Version,
+            release = VersionInfo.Release,
+            deployedAt = VersionInfo.DeployedAt,
+            checks = report.Entries.Select(e => new
+            {
+                name = e.Key,
+                status = e.Value.Status.ToString(),
+                description = e.Value.Description
+            })
+        };
+        await context.Response.WriteAsJsonAsync(result);
     }
 });
 
