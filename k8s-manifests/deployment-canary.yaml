@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: dogsitter-api
-          image: acrdogsitterdev.azurecr.io/dogsitter-api:2.0.0-canary
+          image: acrdogsitterdev.azurecr.io/dogsitter-api:2.0.1-canary
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -34,7 +34,7 @@ spec:
             - name: ApiVersion__Release
               value: "canary"
             - name: ApiVersion__Version
-              value: "2.0.0"
+              value: "2.0.1"
           readinessProbe:
             httpGet:
               path: /healthz

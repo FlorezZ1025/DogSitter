@@ -1,6 +1,6 @@
 # 🐾 DogSitter API — Infraestructura como Código con Terraform
 
-Este README describe el paso a paso para desplegar la infraestructura de la API DogSitter en Azure usando Terraform.
+Este documento describe el paso a paso para desplegar la infraestructura de la API DogSitter en Azure usando Terraform.
 
 ---
 
@@ -11,8 +11,8 @@ Asegúrate de tener instalado:
 - [Terraform](https://developer.hashicorp.com/terraform/downloads) >= 1.5.0
 - [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- [.NET SDK](https://dotnet.microsoft.com/download) (para las migraciones)
-- [Git Bash](https://git-scm.com/downloads) (en Windows)
+- [kubectl](https://kubernetes.io/docs/tasks/tools/)
+- [.NET SDK 8](https://dotnet.microsoft.com/download)
 
 ---
 
@@ -20,321 +20,246 @@ Asegúrate de tener instalado:
 
 ```
 terraform/
-├── main.tf
-├── variables.tf
-├── outputs.tf
-├── provider.tf
-├── environments/
-│   ├── prb.tfvars       # Variables no sensibles de PRB
-│   ├── prd.tfvars       # Variables no sensibles de PRD
-│   ├── prb.env          # Variables sensibles de PRB (NO subir a git)
-│   └── prd.env          # Variables sensibles de PRD (NO subir a git)
+├── root_main.tf         # Recursos principales y módulos
+├── root_variables.tf    # Declaración de variables
+├── root_outputs.tf      # Outputs del despliegue
+├── root_locals.tf       # Valores locales y tags comunes
+├── terraform.tfvars     # Valores de las variables (NO subir a git)
+├── terraform.tfvars.example  # Plantilla de variables
 └── modules/
-    ├── AzureVNet/
-    ├── AzureSQLDatabase/
-    ├── AzureContainerApps/
-    ├── AzureContainerRegistry/
-    └── AzureJumpHost/
+    ├── acr/             # Azure Container Registry
+    ├── aks/             # Azure Kubernetes Service
+    ├── database/        # Azure SQL Database (MSSQL)
+    └── vnet/            # Virtual Network y subnets
 ```
+
+**Recursos que se crean:**
+
+| Módulo     | Recurso Azure      | Nombre generado                          |
+| ---------- | ------------------ | ---------------------------------------- |
+| `vnet`     | Virtual Network    | `vnet-dogsitter-dev`                     |
+| `vnet`     | Subnet AKS         | `snet-aks-dogsitter-dev`                 |
+| `vnet`     | Subnet DB          | `snet-db-dogsitter-dev`                  |
+| `acr`      | Container Registry | `acrdogsitterdev`                        |
+| `aks`      | Kubernetes Cluster | `aks-dogsitter-dev`                      |
+| `database` | SQL Server         | `sql-dogsitter-dev.database.windows.net` |
+| `database` | SQL Database       | `dogsitter`                              |
 
 ---
 
 ## 🔐 Paso 1 — Autenticación con Azure
 
-### 1.1 Inicia sesión
-
-```bash
-az login --tenant <TENANT_ID>
+```powershell
+az login
 ```
 
-### 1.2 Verifica y selecciona tu suscripción
+Se abrirá el navegador para que inicies sesión. Una vez autenticado, verifica y selecciona tu suscripción:
 
-```bash
+```powershell
 az account list --output table
 az account set --subscription "<SUBSCRIPTION_ID>"
 ```
 
-### 1.3 Registra los providers necesarios
-
-```bash
-az provider register --namespace Microsoft.App
-az provider register --namespace Microsoft.OperationalInsights
-
-# Verifica que quedaron registrados
-az provider show --namespace Microsoft.App --query registrationState
-az provider show --namespace Microsoft.OperationalInsights --query registrationState
-```
-
-### 1.4 Crea el Service Principal
-
-```bash
-az ad sp create-for-rbac --name "terraform-sp" --role="Contributor" \
-  --scopes="/subscriptions/$(az account show --query id -o tsv)"
-```
-
-Guarda el JSON que te devuelve:
-```json
-{
-  "appId":       "...",
-  "displayName": "terraform-sp",
-  "password":    "...",
-  "tenant":      "..."
-}
-```
+> No se requiere Service Principal. Terraform usará tu sesión activa de Azure CLI con identidad administrada.
 
 ---
 
-## 🔑 Paso 2 — Configurar variables de entorno
+## 🔑 Paso 2 — Configurar variables
 
-### 2.1 Crea tu llave SSH (requerida para el Jump Host)
+Copia la plantilla y rellena los valores:
 
-```bash
-ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa_azure
+```powershell
+Copy-Item terraform\terraform.tfvars.example terraform\terraform.tfvars
 ```
 
-### 2.2 Obtén tu IP pública
+Edita `terraform.tfvars` con tus valores reales:
 
-```bash
-curl https://ifconfig.me
+```hcl
+project     = "dogsitter"
+environment = "dev"
+location    = "westus"
+
+# VNet
+vnet_address_space = ["10.1.0.0/16"]
+aks_subnet_cidr    = "10.1.1.0/24"
+db_subnet_cidr     = "10.1.2.0/24"
+
+# ACR
+acr_sku = "Basic"
+
+# AKS
+kubernetes_version = "1.36.0"
+aks_node_count     = 2
+aks_node_vm_size   = "Standard_D2s_v3"
+
+# Database
+db_admin_login    = "dogsitteradmin"
+db_admin_password = "TuPasswordSeguro!123"
+db_sku_name       = "Basic"
 ```
 
-### 2.3 Crea el archivo `environments/prb.env`
-
-> ⚠️ Este archivo nunca debe subirse a git.
-
-```bash
-# ── Conexión a Azure ──────────────────────────────
-export ARM_CLIENT_ID="<appId del JSON>"
-export ARM_CLIENT_SECRET="<password del JSON>"
-export ARM_TENANT_ID="<tenant del JSON>"
-export ARM_SUBSCRIPTION_ID="<id de az account show>"
-
-# ── Variables sensibles de tu infra ──────────────
-export TF_VAR_pg_admin_user="dogsitteradmin"
-export TF_VAR_pg_admin_password='<TuPasswordSeguro!123>'
-```
-
-> 💡 Si tu password contiene `$` o `!`, usa comillas simples `'` en lugar de dobles `"`.
-
-### 2.4 Carga las variables en tu sesión
-
-```bash
-source environments/prb.env
-export MSYS_NO_PATHCONV=1   # Necesario en Git Bash para Windows
-```
+> ⚠️ `terraform.tfvars` está en `.gitignore`. Nunca lo subas al repositorio.
 
 ---
 
 ## 🏗️ Paso 3 — Inicializar Terraform
 
-```bash
+```powershell
 cd terraform
 terraform init
 ```
 
 Debe terminar con:
+
 ```
 Terraform has been successfully initialized!
 ```
 
 ---
 
-## 🐳 Paso 4 — Desplegar el ACR primero
+## 🚀 Paso 4 — Desplegar la infraestructura
 
-El ACR debe crearse antes del resto de la infraestructura para poder subir la imagen del contenedor.
-
-```bash
-terraform apply -var-file="environments/prb.tfvars" -target=module.acr -lock=false
+```powershell
+terraform apply
 ```
 
-Escribe `yes` cuando te lo pida.
+Revisa el plan, escribe `yes` cuando te lo pida. Este paso tarda entre **10 y 15 minutos**.
 
-### 4.1 Obtén el login server del ACR
+### 4.1 Verificar los outputs
 
-```bash
-terraform output acr_login_server
-# → acrdogsitterapiprb.azurecr.io
+```powershell
+terraform output acr_login_server       # URL del ACR
+terraform output acr_name               # Nombre del ACR
+terraform output aks_cluster_name       # Nombre del cluster AKS
+terraform output aks_kube_config_command  # Comando para conectarte al AKS
+terraform output db_server_fqdn         # FQDN del servidor SQL
+terraform output db_name                # Nombre de la base de datos
 ```
 
 ---
 
-## 🖼️ Paso 5 — Construir y subir la imagen Docker
+## 🐳 Paso 5 — Construir y subir las imágenes Docker
 
-Desde la carpeta raíz de tu proyecto .NET (donde está el Dockerfile):
-
-```bash
+```powershell
 # Login al ACR
-az acr login --name acrdogsitterapiprb
+az acr login --name acrdogsitterdev
 
-# Construir la imagen
-docker build -t acrdogsitterapiprb.azurecr.io/dogsitter-api:latest .
+# Stable
+docker build `
+  --build-arg APP_VERSION=1.0.0 `
+  --build-arg APP_RELEASE=stable `
+  -t acrdogsitterdev.azurecr.io/dogsitter-api:1.0.0-stable .
 
-# Subir la imagen
-docker push acrdogsitterapiprb.azurecr.io/dogsitter-api:latest
+docker push acrdogsitterdev.azurecr.io/dogsitter-api:1.0.0-stable
 
-# Verificar que quedó en el ACR
-az acr repository list --name acrdogsitterapiprb --output table
+# Canary
+docker build `
+  --build-arg APP_VERSION=2.0.0 `
+  --build-arg APP_RELEASE=canary `
+  -t acrdogsitterdev.azurecr.io/dogsitter-api:2.0.0-canary .
+
+docker push acrdogsitterdev.azurecr.io/dogsitter-api:2.0.0-canary
 ```
 
 ---
 
-## 🚀 Paso 6 — Desplegar el resto de la infraestructura
+## ☸️ Paso 6 — Conectarse al cluster AKS
 
-```bash
-terraform apply -var-file="environments/prb.tfvars" -lock=false
-```
+```powershell
+az aks get-credentials --resource-group rg-dogsitter-dev --name aks-dogsitter-dev
 
-Escribe `yes` cuando te lo pida. Este paso tarda entre **10 y 15 minutos**.
-
-### 6.1 Verifica los outputs
-
-```bash
-terraform output container_app_url
-terraform output db_name
-terraform output jump_host_ip
-MSYS_NO_PATHCONV=1 terraform output db_host
+# Verificar conexión
+kubectl get nodes
 ```
 
 ---
 
-## 🗄️ Paso 7 — Aplicar migraciones de Entity Framework
+## 🔒 Paso 7 — Crear el secret de base de datos en K8s
 
-Con los datos del output anterior:
-
-```bash
-dotnet ef database update --connection "Host=<db_host>;Database=<db_name>;Username=<pg_admin_user>;Password=<pg_admin_password>;SSL Mode=Require;"
-```
-
-> ⚠️ Asegúrate de que tu IP esté en `allowed_ips` dentro del `prb.tfvars` antes de correr este comando.
-
----
-
-## 🔄 Paso 8 — Redesplegar la API (actualizaciones futuras)
-
-Cada vez que hagas cambios en tu API:
-
-```bash
-# 1. Reconstruir la imagen
-docker build -t acrdogsitterapiprb.azurecr.io/dogsitter-api:latest .
-
-# 2. Subir la imagen
-az acr login --name acrdogsitterapiprb
-docker push acrdogsitterapiprb.azurecr.io/dogsitter-api:latest
-
-# 3. Forzar el redespliegue
-az containerapp update \
-  --name ca-dogsitter-api-prb \
-  --resource-group rg-dogsitter-api-prb \
-  --image acrdogsitterapiprb.azurecr.io/dogsitter-api:latest
+```powershell
+kubectl create secret generic dogsitter-db-secret `
+  --from-literal=connection-string="Server=sql-dogsitter-dev.database.windows.net,1433;Initial Catalog=dogsitter;User ID=dogsitteradmin;Password=TuPasswordSeguro!123;Encrypt=True;TrustServerCertificate=False;"
 ```
 
 ---
 
-## 🔒 Paso 9 — Conectarse a la BD via SSH (DBeaver / pgAdmin)
+## 📦 Paso 8 — Desplegar los manifiestos de Kubernetes
 
-### 9.1 Verifica la conexión SSH
+```powershell
+# Instalar NGINX Ingress Controller (solo la primera vez)
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/cloud/deploy.yaml
 
-```bash
-ssh -i ~/.ssh/id_rsa_azure azureuser@<jump_host_ip>
+kubectl wait --namespace ingress-nginx `
+  --for=condition=ready pod `
+  --selector=app.kubernetes.io/component=controller `
+  --timeout=120s
+
+# Aplicar manifiestos de la aplicación
+kubectl apply -f k8s-manifests/
 ```
 
-### 9.2 Configura DBeaver
+### 8.1 Verificar el despliegue
 
-**Pestaña SSH:**
-```
-☑ Use SSH Tunnel
-Host:        <jump_host_ip>
-Port:        22
-Username:    azureuser
-Auth method: Public key
-Private key: C:\Users\<TuUsuario>\.ssh\id_rsa_azure
-```
-
-**Pestaña Main (conexión PostgreSQL):**
-```
-Host:     <db_host>
-Port:     5432
-Database: <db_name>
-Username: <pg_admin_user>
-Password: <pg_admin_password>
-SSL:      Require
+```powershell
+kubectl get pods -l app=dogsitter
+kubectl get ingress
+kubectl get svc -n ingress-nginx   # Obtener la IP pública (EXTERNAL-IP)
 ```
 
 ---
 
-## 🌍 Despliegue en PRD
+## 🔄 Paso 9 — Actualizar solo el canary (futuras versiones)
 
-El proceso es idéntico al de PRB, solo cambia el archivo de variables:
+```powershell
+# 1. Build y push de la nueva imagen
+docker build `
+  --build-arg APP_VERSION=2.0.1 `
+  --build-arg APP_RELEASE=canary `
+  -t acrdogsitterdev.azurecr.io/dogsitter-api:2.0.1-canary .
 
-```bash
-source environments/prd.env
-terraform apply -var-file="environments/prd.tfvars" -lock=false
+docker push acrdogsitterdev.azurecr.io/dogsitter-api:2.0.1-canary
+
+# 2. Actualizar el tag en k8s-manifests/deployment-canary.yaml
+#    image: acrdogsitterdev.azurecr.io/dogsitter-api:2.0.1-canary
+#    ApiVersion__Version: "2.0.1"
+
+# 3. Aplicar
+kubectl apply -f k8s-manifests/deployment-canary.yaml
+
+# 4. Verificar
+kubectl get pods -l version=canary
 ```
 
 ---
 
 ## ⚠️ Solución de problemas comunes
 
-| Error | Solución |
-|---|---|
-| `source: command not found` | Usa Git Bash, no CMD ni PowerShell |
-| `MSYS_NO_PATHCONV` path issues | Ejecuta `export MSYS_NO_PATHCONV=1` antes de terraform |
-| `Error acquiring the state lock` | Ejecuta `rm -f .terraform.tfstate.lock.info` |
-| `var.pg_admin_password: Enter a value` | Recarga con `source environments/prb.env` |
-| `SkuNotAvailable` | Cambia el SKU de la VM en `modules/AzureJumpHost/main.tf` |
-| `LocationIsOfferRestricted` | Cambia la `location` en el `.tfvars` |
+| Error                            | Solución                                                                      |
+| -------------------------------- | ----------------------------------------------------------------------------- |
+| `az login` no abre el navegador  | Usa `az login --use-device-code`                                              |
+| `Error acquiring the state lock` | Elimina el archivo `terraform.tfstate.lock.info`                              |
+| `SkuNotAvailable`                | Cambia `aks_node_vm_size` en `terraform.tfvars`                               |
+| `LocationIsOfferRestricted`      | Cambia `location` en `terraform.tfvars`                                       |
+| `Unauthorized` en docker push    | Ejecuta `az acr login --name acrdogsitterdev` nuevamente                      |
+| Pods en `CrashLoopBackOff`       | Verifica el secret de BD con `kubectl get secret dogsitter-db-secret -o yaml` |
 
 ---
 
-## 🗑️ Script para eliminar toda la infraestructura
+## 🗑️ Eliminar toda la infraestructura
 
-Crea el archivo `destroy.sh` en la raíz de tu carpeta `terraform/`:
-
-```bash
-#!/bin/bash
-
-echo "⚠️  ADVERTENCIA: Esto eliminará TODA la infraestructura de $1"
-echo "¿Estás seguro? Escribe 'yes' para continuar:"
-read confirmation
-
-if [ "$confirmation" != "yes" ]; then
-  echo "❌ Operación cancelada."
-  exit 1
-fi
-
-# Cargar variables del ambiente
-ENVIRONMENT=$1
-source environments/$ENVIRONMENT.env
-export MSYS_NO_PATHCONV=1
-
-echo "🔥 Eliminando infraestructura de $ENVIRONMENT..."
-
-terraform destroy -var-file="environments/$ENVIRONMENT.tfvars" -lock=false -auto-approve
-
-echo "✅ Infraestructura de $ENVIRONMENT eliminada exitosamente."
+```powershell
+cd terraform
+terraform destroy
 ```
 
-### Uso del script
-
-```bash
-# Dale permisos de ejecución
-chmod +x destroy.sh
-
-# Eliminar PRB
-./destroy.sh prb
-
-# Eliminar PRD
-./destroy.sh prd
-```
+Escribe `yes` cuando te lo pida.
 
 ---
 
 ## 📝 .gitignore recomendado
 
-Asegúrate de tener esto en tu `.gitignore`:
-
 ```
-environments/*.env
+terraform.tfvars
 *.tfstate
 *.tfstate.backup
 **/.terraform/
